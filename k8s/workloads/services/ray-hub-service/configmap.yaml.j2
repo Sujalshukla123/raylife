@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ray-hub-service-cm
+data:
+  ca.crt: |
+    {{ lookup('file', folder_path ~ '/ca.crt') | indent(4)}}
+
+
+  subca.crt: |
+    {{ lookup('file', folder_path ~ '/subca.crt') | indent(4)}}
+
+  chain-ca.crt: |
+    {{ lookup('file', folder_path ~ '/chain-ca.crt') | indent(4)}}
+
+  subca.key: |
+    {{ lookup('file', folder_path ~ '/subca.key') | indent(4)}}

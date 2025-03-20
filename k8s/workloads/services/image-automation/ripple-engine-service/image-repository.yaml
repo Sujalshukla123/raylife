@@ -1,0 +1,9 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+    name: ripple-engine-service
+spec:
+  image: truecomtelesoftindia/ripple-engine-service
+  interval: 1m0s
+  secretRef:
+    name: regcred

@@ -1,0 +1,86 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: log-cluster
+  namespace: elastic-system
+spec:
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: true
+
+  version: 8.15.0
+  monitoring:
+    metrics:
+      elasticsearchRefs:
+      - name: log-cluster
+        namespace: elastic-system
+  nodeSets:
+    - name: master-data-node
+      count: 1
+      config:
+        node.roles: [ master, data, ingest, transform, remote_cluster_client ]
+        # node.store.allow_mmap: false
+      podTemplate:
+        metadata:
+          namespace: elastic-system
+        spec:
+          initContainers:
+          - name: sysctl
+            securityContext:
+              privileged: true
+              runAsUser: 0
+            command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+          affinity: {}
+          containers:
+            - name: elasticsearch
+              env:
+                - name: ES_JAVA_OPTS
+                  value: -Xms10g -Xmx10g
+              resources:
+                requests:
+                  memory: 20Gi
+                  cpu: 2
+                limits:
+                  memory: 25Gi
+                  cpu: 3
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 300Gi
+    # - name: master-data-node
+    #   count: 1
+    #   config:
+    #     node.roles: [ master, data, ingest, transform ]
+    #     node.store.allow_mmap: false
+    #   podTemplate:
+    #     metadata:
+    #       namespace: elastic-system
+    #     spec:
+    #       affinity: {}
+    #       containers:
+    #         - name: elasticsearch
+    #           env:
+    #             - name: ES_JAVA_OPTS
+    #               value: -Xms2g -Xmx2g
+    #           resources:
+    #             requests:
+    #               memory: 3Gi
+    #               cpu: 1.5
+    #             limits:
+    #               memory: 3Gi
+
+      # volumeClaimTemplates:
+      #   - metadata:
+      #       name: elasticsearch-data
+      #     spec:
+      #       accessModes:
+      #         - ReadWriteOnce
+      #       resources:
+      #         requests:
+      #           storage: 50Gi

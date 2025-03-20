@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ripple-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ripple-nginx
+  template:
+    metadata:
+      labels:
+        app: ripple-nginx
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: ripple-nginx
+        image: truecomtelesoftindia/portalnginx:4.0.33
+        livenessProbe:
+          httpGet:
+            path: /AWS-Pages/index.html
+            port: 80
+          initialDelaySeconds: 120
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /AWS-Pages/index.html
+            port: 80
+          initialDelaySeconds: 120
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 5
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "256m"
+          limits:
+            memory: "2Gi"
+            cpu: "256m"
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: "/home/truconnect/html/"
+          name: ripple-volume
+      volumes:
+      - name: ripple-volume
+        persistentVolumeClaim:
+          claimName: ripple-volume

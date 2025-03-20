@@ -1,0 +1,155 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app: kube-prometheus-stack
+    release: prometheus
+  name: prometheus-kube-prometheus-common.rules
+  namespace: monitoring
+spec:
+  groups:
+  - name: container-alerts
+    rules:
+    - alert: PodRestarted
+      labels:
+        severity: warning
+      annotations:
+        summary: " Pod {{ $labels.pod }} has been restarted"
+        description: "{{ $labels.container }} of pod {{ $labels.pod }} has been restarted."
+      expr: increase(kube_pod_container_status_restarts_total[2m]) > 0
+      
+    - alert: ContainerCpuUsage
+      expr: (sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{pod!~"elastic-agent-agent-.*",namespace!="flux-system"}) by (pod) / sum(kube_pod_container_resource_requests{resource="cpu"}) by (pod)) * 100 > 80
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: Container CPU usage (instance {{ $labels.pod }})
+        description: "Container CPU usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+    - alert: ContainerMemoryUsage
+      expr: (sum(container_memory_working_set_bytes{ image != "",pod!~"elastic-agent-agent-.*",namespace!="flux-system"}) BY (pod, namespace) / sum(kube_pod_container_resource_requests{resource = "memory",pod!~"elastic-agent-agent-.*",namespace!="flux-system"} > 0) BY (pod, namespace)) * 100 > 80
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: Container Memory usage (instance {{ $labels.pod }})
+        description: "Container Memory usage is above 80%\n for {{ $labels.pod }}  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+    - alert: High CPU Usage of Container
+      annotations:
+        summary: Container named {{$labels.container}} in {{$labels.pod}} in {{$labels.namespace}} is using more than 95% of CPU Limit
+      expr: |
+        ((sum(irate(container_cpu_usage_seconds_total{image!="",container_name!="POD", namespace!="kube-system"}[30s])) by (namespace,container_name,pod_name) / sum(container_spec_cpu_quota{image!="",container_name!="POD", namespace!="kube-system"} / container_spec_cpu_period{image!="",container_name!="POD", namespace!="kube-system"}) by (namespace,container_name,pod_name) ) * 100)  > 90
+      for: 5m
+      labels:
+        severity: "critical"
+  - name: Nodes
+    rules:
+    - alert: High Node Memory Usage
+      annotations:
+        summary: Node {{$labels.kubernetes_io_hostname}} has more than 80% memory used. Plan Capcity
+      expr: |
+        (sum (container_memory_working_set_bytes{id="/",container_name!="POD"}) by (kubernetes_io_hostname) / sum (machine_memory_bytes{}) by (kubernetes_io_hostname) * 100) > 80
+      for: 5m
+      labels:
+        severity: warning
+    - alert: High Node CPU Usage
+      annotations:
+        summary: Node {{$labels.kubernetes_io_hostname}} has more than 80% allocatable cpu used. Plan Capacity.
+      expr: |
+        (sum(rate(container_cpu_usage_seconds_total{id="/", container_name!="POD"}[1m])) by (kubernetes_io_hostname) / sum(machine_cpu_cores) by (kubernetes_io_hostname)  * 100) > 85
+      for: 5m
+      labels:
+        severity: critical
+    - alert: High Node Disk Usage
+      annotations:
+        summary: Node {{$labels.kubernetes_io_hostname}} has more than 85% disk used. Plan Capacity.
+      expr: |
+        (sum(container_fs_usage_bytes{device=~"^/dev/[sv]d[a-z][1-9]$",id="/",container_name!="POD"}) by (kubernetes_io_hostname) / sum(container_fs_limit_bytes{container_name!="POD",device=~"^/dev/[sv]d[a-z][1-9]$",id="/"}) by (kubernetes_io_hostname)) * 100 > 85
+      for: 5m
+      labels:
+        severity: critical
+  - name: Cluster alerts for memory and CPU
+    rules:
+    - alert: HighClusterCPURequests
+      expr: |
+        (sum(namespace_cpu:kube_pod_container_resource_requests:sum) / sum(kube_node_status_allocatable{job="kube-state-metrics",resource="cpu"})) > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU Requests in Cluster {{ $labels.cluster }}"
+        description: "CPU requests are above 80% of total allocatable CPU in cluster {{ $labels.cluster }}.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+    - alert: HighClusterMemoryRequests
+      expr: |
+        (sum(namespace_memory:kube_pod_container_resource_requests:sum) / sum(kube_node_status_allocatable{job="kube-state-metrics",resource="memory"})) > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High Memory Requests in Cluster ({{ $labels.cluster }})"
+        description: "Memory requests are above 80% of total allocatable memory in cluster {{ $labels.cluster }}.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+    
+  - name: Persistent volume alerts for all PVs in cluster
+    rules:
+    - alert: PersistentVolumeUsageHigh
+      expr: |
+        (sum(kubelet_volume_stats_used_bytes) by (persistentvolumeclaim, namespace) / sum(kubelet_volume_stats_capacity_bytes) by (persistentvolumeclaim, namespace)) > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High Persistent Volume Usage ({{ $labels.persistentvolumeclaim }}) in Namespace ({{ $labels.namespace }})"
+        description: "The persistent volume claim {{ $labels.persistentvolumeclaim }} in namespace {{ $labels.namespace }} is using more than 80% of its capacity.\n  VALUE = {{ $value }}%\n  LABELS: {{ $labels }}"
+
+  - name: longhorn
+    rules: 
+    - alert: LonghornVolumeStatusCritical
+      annotations:
+        description: Longhorn volume {{$labels.volume}} on {{$labels.node}} is Fault for
+          more than 2 minutes.
+        summary: Longhorn volume {{$labels.volume}} is Fault
+      expr: longhorn_volume_robustness == 3
+      for: 5m
+      labels:
+        issue: Longhorn volume {{$labels.volume}} is Fault.
+        severity: critical
+    - alert: LonghornVolumeStatusWarning
+      annotations:
+        description: Longhorn volume {{$labels.volume}} on {{$labels.node}} is Degraded for
+          more than 5 minutes.
+        summary: Longhorn volume {{$labels.volume}} is Degraded
+      expr: longhorn_volume_robustness == 2
+      for: 5m
+      labels:
+        issue: Longhorn volume {{$labels.volume}} is Degraded.
+        severity: warning
+    - alert: LonghornBackupError
+      expr: |
+        longhorn_backup_state == 4
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Backup {{ $labels.backup }} for volume {{ $labels.volume }} is in error state"
+        description: "The backup {{ $labels.backup }} for volume {{ $labels.volume }} has been in error state for more than 5 minutes. Investigate immediately."
+    - alert: LonghornBackupError
+      expr: |
+        longhorn_backup_state == 5
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Backup {{ $labels.backup }} for volume {{ $labels.volume }} is in Unknown state"
+        description: "The backup {{ $labels.backup }} for volume {{ $labels.volume }} has been in Unknown state for more than 5 minutes. Investigate immediately."
+# 1: 
+# 2: Healthy
+# 3: Detached
+# 4: 
+
+# 1-healthy
+# 2-dk
+#3-faulted
+#4 -dk

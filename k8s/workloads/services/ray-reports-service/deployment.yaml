@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-reports-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ray-reports-service
+  template:
+    metadata:
+      labels:
+        app: ray-reports-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-reports-service
+          image: truecomtelesoftindia/ray-reports-service:8.0.0-SNAPSHOT-master-b72bb5b-354 # {"$imagepolicy": "default:ray-reports-service"}
+          livenessProbe:
+            httpGet:
+              path: /management/health
+              port: 38112
+            initialDelaySeconds: 180
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /management/health
+              port: 38112
+            initialDelaySeconds: 180
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "6Gi"
+              cpu: "512m"
+            limits:
+              memory: "8Gi"
+              cpu: "512m"
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: AWS_SECRET_ACCESS_KEY
+              value: qSL26W4yujVt9+Fl0b45L8CDvP178AQRb8lnjY24
+            - name: AWS_ACCESS_KEY_ID
+              value: AKIAYPGMAAYGMJVKUBZB
+            - name: ENABLE_EUREKA
+              value: "false"
+            - name: POSTGRESQL_URL
+              value: postgresql://RayApp:pa8Gz+cLfAT4Yn3@postgres-postgresql.postgres:5432/RayApp?currentSchema=controller&ApplicationName=controller
+              #              value: postgresql://RayApp:kba5tuF3Ckd4H5DT@rayprod.cnalrpjgvvuy.ap-south-1.rds.amazonaws.com:5432/RayApp?currentSchema=controller&ApplicationName=controller
+            - name: POSTGRESQL_SCHEMA
+              value: "controller"
+            - name: POSTGRESQL_USERNAME
+              value: "RayApp"
+            - name: POSTGRESQL_PORT
+              value: "5432"
+            - name: PDF_DOWNLOAD_THRESHOLD
+              valu: "100"
+            - name: ZIP_DOWNLOAD_THRESHOLD
+              value: "300"
+            - name: MAX_VOUCHERS_THRESHOLD
+              value: "1000"
+            - name: BATCH_PARTITION_SIZE
+              value: "50"
+            - name: BATCH_GENERATION_DELAY
+              value: "3000"           
+            - name: AWS_VOUCHERS_BUCKET_NAME
+              value: "ray-vouchers-prod"
+            - name: BATCH_LOCAL_STORE_PATH
+              value: "${HOME}/voucherBatches"
+            - name: AWS_PACKET_CAPTURE_BUCKET_NAME
+              value: "ray-packet-capture-prod"
+            - name: HUB_LOCAL_STORE_PATH
+              value: "/root/hub/"
+            - name: POSTGRESQL_HOST
+              value: ${SPRING_DATASOURCE_HOST}
+            - name: POSTGRESQL_PASSWORD
+              value: ${SPRING_DATASOURCE_PASSWORD}
+            - name: NODE_ENV
+              value: application-k8s
+          ports:
+            - containerPort: 38112
+          volumeMounts:
+            - mountPath: "/app/reports_workdir"
+              name: reports-volume
+            - mountPath: "/root/hub"
+              name: hub-volume
+      volumes:
+        - name: reports-volume
+          persistentVolumeClaim:
+            claimName: reports-volume
+        - name: hub-volume
+          persistentVolumeClaim:
+            claimName: hub-volume

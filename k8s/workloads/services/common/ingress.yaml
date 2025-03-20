@@ -1,0 +1,77 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ray-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  # TLS configuration is disabled
+  # tls:
+  # - hosts:
+  #   - cloud.ray.internal
+  #   - captivecloud.ray.internal
+  #   - gatewaycloud.ray.internal
+  #   - hubcloud.ray.internal
+  #   secretName: rayprod-cert
+  rules:
+    - host: cloud.ray.internal
+      http:
+        paths:
+          - backend:
+              service:
+                name: ray-controller-dashboard
+                port:
+                  number: 80
+            pathType: ImplementationSpecific
+    - host: captivecloud.ray.internal
+      http:
+        paths:
+          - backend:
+              service:
+                name: ripple-nginx
+                port:
+                  number: 80
+            pathType: ImplementationSpecific
+    - host: gatewaycloud.ray.internal
+      http:
+        paths:
+          - backend:
+              service:
+                name: ray-gateway-service
+                port:
+                  number: 38080
+            pathType: ImplementationSpecific
+    - host: jsreport.ray.internal
+      http:
+        paths:
+          - backend:
+              service:
+                name: ray-jsreports-service
+                port:
+                  number: 5488
+            pathType: ImplementationSpecific
+    - host: hubcloud.ray.internal
+      http:
+        paths:
+          - path: /ray-hub-service
+            backend:
+              service:
+                name: ray-hub-service
+                port:
+                  number: 38099
+            pathType: ImplementationSpecific
+          - path: /api/v1/device
+            backend:
+              service:
+                name: ray-hub-service
+                port:
+                  number: 38099
+            pathType: ImplementationSpecific
+          - backend:
+              service:
+                name: ray-hub-dashboard
+                port:
+                  number: 80
+            pathType: ImplementationSpecific

@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-mqtt-proxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ray-mqtt-proxy
+  template:
+    metadata:
+      labels:
+        app: ray-mqtt-proxy
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-mqtt-proxy
+          image: truecomtelesoftindia/ray-mqtt-proxy:1.0.0-SNAPSHOT-master-a34173a-95 # {"$imagepolicy": "default:ray-mqtt-proxy"}
+          livenessProbe:
+            httpGet:
+              path: /management/health
+              port: 38114
+            initialDelaySeconds: 600
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /management/health
+              port: 38114
+            initialDelaySeconds: 180
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "3Gi"
+              cpu: "2"
+            limits:
+              memory: "4Gi"
+              cpu: "3"
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_CONTROLLER}${APPLICATION_NAME_CONTROLLER}
+            - name: SERVICE_DNS_NAME
+              value: ray-mqtt-proxy-headless.default.svc.cluster.local
+            - name: MQTT_AUTHORIZATION_ENABLE
+              value: "false"
+            - name: _JAVA_OPTIONS
+              value: "-Xmx3000m -Xms2048m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin"
+          ports:
+            - containerPort: 38114

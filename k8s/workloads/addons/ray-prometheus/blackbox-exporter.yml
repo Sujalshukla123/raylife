@@ -1,0 +1,24 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: blackbox-exporter
+  namespace: monitoring
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: prometheus-blackbox-exporter
+      version: '7.2.0'
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus
+        namespace: monitoring
+      interval: 1m
+  values:
+    namespaceOverride: monitoring     
+    serviceMonitor:
+      enabled: true
+      path: "/"
+      targets:
+        - name: cloudflare                    # Human readable URL that will appear in Prometheus / AlertManager
+          url: http://1.1.1.1  # The URL that blackbox will scrape

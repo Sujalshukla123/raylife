@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: kafka
+spec:
+  interval: 1m
+  url: https://charts.helm.sh/incubator

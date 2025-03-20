@@ -1,0 +1,125 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: log-kibana
+  namespace: elastic-system
+spec:
+  version: 8.15.0
+  count: 1
+  elasticsearchRef:
+    name: log-cluster
+  podTemplate:
+    metadata:
+      namespace: elastic-system
+    spec:
+      containers:
+        - name: kibana
+          resources:
+            requests:
+              memory: 3Gi
+              cpu: 1.5
+            limits:
+              memory: 4Gi
+              cpu: 2
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - curl  http://127.0.0.1:5601/login -k -s
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: true
+    service:
+      spec:
+        type: NodePort
+        ports:
+          - port: 5601
+            nodePort: 32000
+            name: http
+  config:
+    xpack.fleet.agents.elasticsearch.hosts: ["http://log-cluster-es-http.elastic-system.svc:9200"]
+    xpack.fleet.agents.fleet_server.hosts: ["https://fleet-server-agent-http.elastic-system.svc:8220"]
+    xpack.fleet.packages:
+    - name: system
+      version: latest
+    - name: elastic_agent
+      version: latest
+    - name: fleet_server
+      version: latest
+    - name: kubernetes
+      version: latest
+    - name: log
+      version: latest  
+    - name: apm
+      version: latest
+    xpack.fleet.agentPolicies:
+    - name: Fleet Server on ECK policy
+      id: eck-fleet-server
+      namespace: default
+      monitoring_enabled:
+      - logs
+      - metrics
+      unenroll_timeout: 900
+      package_policies:
+      - name: fleet_server-1
+        id: fleet_server-1
+        package:
+          name: fleet_server
+    - name: Elastic Agent on ECK policy
+      id: eck-agent
+      namespace: default
+      monitoring_enabled:
+      - logs
+      - metrics
+      unenroll_timeout: 900
+      package_policies:
+      - package:
+          name: system
+        name: system-1
+      - package:
+          name: kubernetes
+        name: kubernetes-1
+        inputs:
+        - type: filestream
+          enabled: true
+          streams:
+          - enabled: true
+            data_stream:
+              type: logs
+              dataset: kubernetes.container_logs
+            vars:
+            - name: custom
+              value: |
+                condition: ${kubernetes.namespace} == 'default'
+
+            - name: processors
+              value: |
+                - rename:
+                    fields:
+                      - from: "message"
+                        to: "original_message"
+                    ignore_missing: false
+                    fail_on_error: true
+                - decode_json_fields:
+                    fields: ["original_message"]  # Use the renamed field if needed
+                    process_array: false
+                    max_depth: 1
+                    target: ""
+                    overwrite_keys: false
+                    add_error_key: true
+      - package:
+          name: apm
+        name: apm-1
+        inputs:
+        - type: apm
+          enabled: true
+          vars:
+          - name: host
+            value: 0.0.0.0:8200
+ 

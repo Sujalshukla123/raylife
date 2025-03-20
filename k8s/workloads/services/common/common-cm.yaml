@@ -1,0 +1,187 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  common-cm
+data:
+  ADROLLS_PASSWORD: PM7BCNLT
+  APPLICATION_RAYAPP_PASSWORD: r49pd*~Lb=:vB+T&
+  APPLICATION_RAYAPP_USERNAME: system
+  RAY_PASSWORD: r49pd*~Lb=:vB+T&
+  RAY_USERNAME: system
+  APPLICATION_HUBSERVICE_USERNAME: system
+  APPLICATION_HUBSERVICE_PASSWORD: r49pd*~Lb=:vB+T&
+  JHIPSTER_REGISTRY_PASSWORD: FoNjs3lUWvkcUP84
+  APP_STORE_ENABLED: "false"
+  APP_STORE_PASSWORD: oz2#BV9i
+  APP_STORE_URL: https://storecloud.ray.internal/json-call
+  APP_STORE_DATABASE: raystore_prod
+  APP_STORE_USERNAME: rayapps
+  AWS_ENABLE: "false"
+  BASE_DIRECTORY: /root/ray
+  CAPTIVE_PORTAL_URL: http://testcaptivecloud.ray.internal
+  CLIENT_NAME: Ray
+  CONTROLLER_IP: "testcloud.ray.internal"
+  CONTROLLER_URL: testcloud.ray.internal
+  EUREKA_CLIENT_ENABLED: "true"
+  KAFKA_PASSWORD: "yJnF7ns9G4cjGHD"
+  SPRING_OUTPUT_ANSI_ENABLED: NEVER
+  KAFKA_URL: kafka-new-broker-0.kafka-new-broker-headless.default.svc.cluster.local:9092,kafka-new-broker-1.kafka-new-broker-headless.default.svc.cluster.local:9092,kafka-new-broker-2.kafka-new-broker-headless.default.svc.cluster.local:9092
+  # KAFKA_URL: ray-kafka-prod-0.kafka.internal:19092,ray-kafka-prod-1.kafka.internal:19092,ray-kafka-prod-2.kafka.internal:19092
+  #KAFKA_HUB_URL: ray-kafka-prod-0.ray-kafka-prod-headless.default.svc.cluster.local:9092,ray-kafka-prod-1.ray-kafka-prod-headless.default.svc.cluster.local:9092,ray-kafka-prod-2.ray-kafka-prod-headless.default.svc.cluster.local:9092
+  MQTT_BROKER_URL: tcp://ray-mqtt-prod:1883
+  MQTT_BROKER_SERVER_URIS: tcp://ray-mqtt-prod:1883
+  # MQTT_BROKER_URL: tcp://ray-mqtt.tcp.internal:1883
+  # MQTT_BROKER_SERVER_URIS: tcp://mqtt.tcp.internal:1883
+  #MQTT_BROKER_DCN_URL: tcp://ray-mqtt-prod:1883
+  MQTT_BROKER_DCN_URL: tcp://43.204.15.255:1883
+  #MQTT_BROKER_DCN_SERVER_URIS: tcp://ray-mqtt-prod:1883
+  MQTT_BROKER_DCN_SERVER_URIS: tcp://43.204.15.255:1883
+  #MQTT_BROKER_DCN_PASSWORD: A:8yA4Fv&a2*GQ`m
+  MQTT_BROKER_DCN_PASSWORD: jWLzBrNsNWceXq7U
+  #MONITOR_SERVER_IP: "192.168.20.205"
+  MONITOR_SERVER_IP: ""
+  MQTT_BROKER_ADMIN_PASSWORD: +7+xmd6zTA.6ync
+  APPLICATION_MQTT_BROKER_PASSWORD: A:8yA4Fv&a2*GQ`m
+  MQTT_BROKER_AUTOMATION_PASSWORD: ukGYetra459WUMVv
+  MQTT_BROKER_WEBSOCKETUSER_PASSWORD: wbcGH+2qTEe.78U
+  PGADMIN_DEFAULT_PASSWORD: coldplay@123
+  POSTGRES_PASSWORD: test
+  SOFTWARE_PACKAGE: FULL
+  SPRING_SECURITY_USER_PASSWORD: admin
+  ADDROLLS_API_URL: https://adrolls.ray.internal/adroll-truecom
+  RANDOM_AD_URL: http://www.scpsmsgt.com/adroll-truecom/public/index.php/api/getRandomAds?
+  IMAGE_AD_URL: http://www.scpsmsgt.com/adroll-truecom/public/index.php/api/getImageAds?
+  VIDEO_AD_URL: http://www.scpsmsgt.com/adroll-truecom/public/index.php/api/getVideoAds?
+  ADROLLS_USERNAME: truecom_user@api.com
+  JHIPSTER_SECURITY_AUTHENTICATION_JWT_SECRET: "@NkS)Atx(j6JBFz+Xf3X2mTGvneyHT9Ray(YhR6eq*bB4DYWy5Ah8?E4$tWS@vJE36WbfsKV7u4cu(Qhes73?-$FkX&DK(S?2E3xmr&Ba76YwV92Ez&X8Mt9R)kB&v?Xbt("
+  JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET: QE5rUylBdHgoajZKQkZ6K1hmM1gybVRHdm5leUhUOVJheShZaFI2ZXEqYkI0RFlXeTVBaDg/RTQkdFdTQHZKRTM2V2Jmc0tWN3U0Y3UoUWhlczczPy0kRmtYJkRLKFM/MkUzeG1yJkJhNzZZd1Y5MkV6Jlg4TXQ5UilrQiZ2P1hidCg=
+  KAFKA_SECURITY_PROTOCOL: "SASL_PLAINTEXT"
+  ASSIGN_GROUP_MAC_ADDRESSES_THRESHOLD: "200"
+  WHITE_AND_BLACK_LIST_MAC_ADDRESSES_THRESHOLD: "1000"
+  KAFKA_USERNAME: "admin"
+  MQTT_DCN_PASSWORD: "jWLzBrNsNWceXq7U"
+  KAFKA_JAAS_ENABLED: "true"
+  AWS_ASSESS_KEY: AKIAYPGMAAYGMJVKUBZB
+  AWS_SECRET_KEY: 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
+  AWS_REGION: ap-southeast-1
+  AWS_CODE_GURU_PROFILING_GROUP_NAME: controller-profiling-group-prod
+  AWS_ENABLE_CODE_GURU_PROFILING: "false"
+  AWS_SDWAN_BUCKET_NAME: ray-sdwan-prod
+  AWS_EKS_HOSTED_ZONE_NAME: ray.internal
+  AWS_EKS_HOSTED_ZONE_NAME_INTERNAL: ray.internal
+  AWS_EKS_HOSTED_ZONE_ID: "Z02879661WTMBP17XZAPE"
+  AWS_EKS_HOSTED_ZONE_INTERNAL_ID: "Z08426882GTSF18UG15T9"
+  AWS_EKS_ELB_URL: "a95ad01113c5844fb915625ea717e129-847385886.ap-south-1.elb.amazonaws.com"
+  AWS_EKS_ELB_INTERNAL_URL: "internal-a5f7075378e454414b72ceeb29736500-276194345.ap-south-1.elb.amazonaws.com"
+  AWS_EKS_ELB_HOSTED_ZONE_ID: "ZP97RAFLXTNZK"
+  AWS_EKS_CLUSTER_NAME: Ray-Prod-Cluster
+  AWS_EKS_REGION: ap-south-1
+  AWS_EKS_PUSH_PROX_USER_NAME: raylife
+  AWS_EKS_GRAFANA_ADMIN_PASSWORD: A3Q.g4@
+  AWS_ACCOUNT_NUMBER: "582395889164"
+  AWS_EKS_NGINX_PASSWORD: A3Q.g4@
+  AWS_EKS_STORAGE_CLASS_NAME: gp3-delete
+  AWS_EKS_DEFAULT_NAME_SPACE_NAME: rayproduction
+  HELP_DESK_URL: http://164.68.125.139:8069/json-call
+  HELP_DESK_USERNAME: rayapp@ray.life
+  HELP_DESK_PASSWORD: Password@123
+  HELP_DESK_DATABASE: ray_rental_demo
+
+
+  HUB_URL: http://ray-hub-service:38099/ray-hub-service
+  #RAY_APP_URL: http://ray-gateway-service:38080/ray-app/api
+  RAY_APP_URL: http://ray-gateway-service:38080/ray-app/api
+  #RAY_BASE_URL: http://ray-controller-service
+  RAY_BASE_URL: https://cloud.ray.internal
+  #RAY_GATEWAY_URL: http://ray-gateway-service:38080/api
+  RAY_GATEWAY_URL: http://ray-gateway-service:38080/api
+  RAY_BACKUP_BASE_URL: http://ray-gateway-service:38080/ray-backup
+  RIPPLE_BASE_URL: http://ray-gateway-service:38080/ripple-engine
+  STATS_SERVICE_BASE_URL: http://ray-statistics-service
+  FLINK_SERVER_URL: http://flink-jobmanager:8081/
+#  FLINK_SERVER_URL: http://flink.web.internal/
+  FLINK_S3_BUCKET_NAME: ray-flink-onprem-prod
+  #TASKMANAGER_HOST: flink.query.internal
+  TASKMANAGER_HOST: flink-taskmanager
+  JSREPORT_SERVICE_URL: http://ray-jsreports-service:32488/api/report
+  #RIPPLE_ENGINE_URL: http://ray-gateway-service:38080/ripple-engine/api
+  RIPPLE_ENGINE_URL: http://ray-gateway-service:38080/ripple-engine/api
+  RAY_RADIUS_URL: http://ray-gateway-service:38080/ray-radius/api
+  RAY_STATS_URL: http://ray-gateway-service:38080/ray-stats/api
+  RAY_REPORT_BASE_URL: http://ray-gateway-service:38080/ray-reports/api/reports
+  RAY_DASHBOARD_BASE_URL: https://ray-gateway-service:38080/ray-dashboard
+  RAY_NOTIFICATION_URL: http://ray-gateway-service:38080/ray-notification/api
+  RAY_VENDOR_URL: http://ray-gateway-service:38080/ray-vendor/api
+  RAY_DASHBOARD_SERVICE_URL: http://ray-gateway-service:38080/ray-dashboard/api
+  RIPPLE_ENGINE_SERVICE_URL: http://ray-gateway-service:38080/ripple-engine/api
+  RAY_DASHBOARD_URL: http://ray-gateway-service:38080/ray-dashboard/api
+  RAY_JOB_URL: http://ray-gateway-service:38080/ray-job/api
+  RAY_REPORTS_URL: http://ray-gateway-service:38080/ray-reports/api
+  RAY_NOTIFICATION_SERVICE_URL: http://ray-gateway-service:38080/ray-notification/api
+  RAY_STATISTICS_SERVICE_URL: http://ray-gateway-service:38080/ray-stats/api
+  RAY_AUDIT_URL: http://ray-gateway-service:38080/ray-audit/api
+  PROMETHEUS_DOMAIN_URL: http://172.27.63.174:30090
+  MQTT_HTTP_URL: http://raymqttkey@ray-mqtt-prod-headless:8888/api/v1
+  # http://raymqttkey@mqtt.tcp.internal/api/v1
+  ANALYTICS_SERVICE_URL: http://helmrelease-rayprod-grafana.analytics:3000
+  PROMETHEUS_SERVICE_URL: http://helmrelease-rayprod-kube-p-prometheus.analytics:9090/api/v1
+
+  LIGHT_HOUSE_SERVER_IP: 192.168.20.250
+  LIGHT_HOUSE_SERVER_STATUS: live
+  LIGHT_HOUSE_SERVER_NAME: ProdServer1
+  LIGHT_HOUSE_SERVER_SEQUENCE_NAME: sequence1
+  SPRING_PROFILES_ACTIVE: k8s,swagger
+  #_JAVA_OPTIONS: -Xmx3280m -Xms1024m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin
+  LOGSTASH_HOST: 172.27.63.175
+  LOGSTASH_PORT: "5000"
+
+  ## DATABASE ENV VARIABLES START
+
+  CRATE_DATASOURCE_URL: crate://crate-internal-service:5432/
+  # CRATE_DATASOURCE_URL: crate://crate.postgres.internal:5432/
+#  CRATEDB_URL: http://crate.web.internal:80/
+  CRATEDB_URL: crate://crate-internal-service:4200/raystatistic
+  CRATE_STATISTICS_SCHEMA_NAME: raystatistic
+  CRATE_AUDIT_SCHEMA_NAME: rayaudit
+
+  #To create spring datasource url : ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_JOB}${APPLICATION_NAME_JOB}
+  # ex. jdbc:postgresql://postgres-postgresql.postgres:5432/RayApp?currentSchema=job&ApplicationName=job
+  # on Updating datasource host, username, name or password do update the same in ray-reports-service's deployment.yaml file.
+
+  SPRING_DATASOURCE_HOST: postgres-postgresql.postgres
+#  SPRING_DATASOURCE_HOST: rayprod.cnalrpjgvvuy.ap-south-1.rds.amazonaws.com
+  SPRING_DATASOURCE_USERNAME: RayApp
+  SPRING_DATASOURCE_DATABASE_NAME: RayApp
+  SPRING_DATASOURCE_PASSWORD: pa8Gz+cLfAT4Yn3
+#  SPRING_DATASOURCE_PASSWORD: kba5tuF3Ckd4H5DT
+  POSTGRES_DATASOURCE_URL: jdbc:postgresql://${SPRING_DATASOURCE_HOST}:5432/${SPRING_DATASOURCE_DATABASE_NAME}?currentSchema=
+  APPLICATION_DATASOURCE_POSTGRESQL_PASSWORD: kba5tuF3Ckd4H5DT
+
+  SCHEMA_NAME_HUB: hub
+  SCHEMA_NAME_CONTROLLER: controller
+  SCHEMA_NAME_BACKUP: cratebackup
+  SCHEMA_NAME_BATCH: batch
+  SCHEMA_NAME_DASHBOARD: dashboard
+  SCHEMA_NAME_JOB: job
+  SCHEMA_NAME_NOTIFICATION: notification
+  SCHEMA_NAME_RADIUS: radius
+  SCHEMA_NAME_RIPPLE_ENGINE: ripple_engine
+  SCHEMA_NAME_VENDOR: ray3p
+  SCHEMA_NAME_STATISTICS: statistics
+
+  APPLICATION_NAME_BACKUP: "&ApplicationName=backup"
+  APPLICATION_NAME_BATCH: "&ApplicationName=batch"
+  APPLICATION_NAME_CONTROLLER: "&ApplicationName=controller"
+  APPLICATION_NAME_GATEWAY: "&ApplicationName=gateway"
+  APPLICATION_NAME_HUB: "&ApplicationName=hub"
+  APPLICATION_NAME_DASHBOARD: "&ApplicationName=dashboard"
+  APPLICATION_NAME_RIPPLE_ENGINE: "&ApplicationName=RippleEngine"
+  APPLICATION_NAME_VENDOR: "&ApplicationName=ray3p"
+  APPLICATION_NAME_STATISTICS: "&ApplicationName=Statistics"
+  APPLICATION_NAME_NOTIFICATION: "&ApplicationName=notification"
+  APPLICATION_NAME_RADIUS: "&ApplicationName=radius"
+  APPLICATION_NAME_JOB: "&ApplicationName=job"
+
+  ## DATABASE ENV VARIABLES END
+
+  OVERRIDDEN_CERTIFICATES_ENABLE: "false"

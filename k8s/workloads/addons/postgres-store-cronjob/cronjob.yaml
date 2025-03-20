@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-store-backup
+  namespace: postgres
+spec:
+  schedule: "*/15 * * * *"  
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          imagePullSecrets:
+          - name: regcred
+          containers:
+          - name: postgres-backup
+            image: truecomtelesoftindia/postgres-cronjob:latest  # Replace with your Docker image name
+            command: ["/bin/sh", "-c", "/app/backup.sh"]
+            imagePullPolicy: Always 
+            env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_REGION
+            - name: S3_BUCKET
+              value: "s3://rayprod-new-postgres-store-backup/postgres-store-backup"
+            - name: DB_USER
+              value: backup_user
+            - name: DB_NAME
+              value: RayApp
+            - name: DB_PASSWORD
+              value: "mA7s#tY9pQ!xLd2V"
+            - name: DB_HOST
+              value: postgres-store-postgresql.postgres.svc.cluster.local
+            - name: SCHEMAS
+              value: "raystore"
+          restartPolicy: OnFailure

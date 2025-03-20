@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-vendor-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ray-vendor-service
+  template:
+    metadata:
+      labels:
+        app: ray-vendor-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-vendor-service
+          image: truecomtelesoftindia/ray-vendor-service:8.0.0-SNAPSHOT-master-448f6b6-83 # {"$imagepolicy": "default:ray-vendor-service"}
+          livenessProbe:
+            httpGet:
+              path: /management/health
+              port: 38111
+            initialDelaySeconds: 300
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /management/health
+              port: 38111
+            initialDelaySeconds: 300
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "3Gi"
+              cpu: "256m"
+            limits:
+              memory: "4Gi"
+              cpu: "512m"
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: SPRING_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: SPRING_DATASOURCE_URL
+              value: ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_VENDOR}${APPLICATION_NAME_VENDOR}
+            - name: SERVICE_DNS_NAME
+              value: ray-vendor-service-headless.default.svc.cluster.local
+            - name: SMS_GATEWAY_ADD_CREDIT_TO_WALLET
+              value: "false"
+            - name: _JAVA_OPTIONS
+              value: "-Xmx2457m -Xms1024m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin"
+          ports:
+            - containerPort: 38111

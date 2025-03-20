@@ -1,0 +1,66 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: postgres
+  namespace: postgres
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: postgresql
+      version: '13.2.23'
+      sourceRef:
+        kind: HelmRepository
+        name: bitnamicharts
+        namespace: postgres
+      interval: 1m
+  values:
+    auth:
+      postgresPassword: "#B8vLq9zNp$6u@"
+      username: RayApp
+      password: pa8Gz+cLfAT4Yn3
+      database: RayApp
+    primary:
+      initdb:
+        scripts:
+          init.sql: |-
+            GRANT ALL PRIVILEGES ON DATABASE "RayApp" TO "RayApp";
+            ALTER DATABASE "RayApp" OWNER TO "RayApp";
+            ALTER USER "RayApp" WITH SUPERUSER;
+            CREATE USER "backup_user" SUPERUSER PASSWORD 'Wf9dTq3Lu8Zr';
+            ALTER USER backup_user set default_transaction_read_only = on;
+        user: postgres
+        password: "#B8vLq9zNp$6u@"
+      priorityClassName: "high-priority"
+      extendedConfiguration: |
+        max_connections = 1000
+        shared_preload_libraries = 'pg_stat_statements' # (change requires restart)
+        pg_stat_statements.max = 10000
+        pg_stat_statements.track = all
+      service:
+        type: NodePort
+      persistence:
+        size: 500Gi
+        enabled: true
+        # existingClaim: "postgres-restore"
+        labels: 
+          recurring-job.longhorn.io/source: enabled
+          recurring-job.longhorn.io/recurring-postgres-backups: enabled
+          recurring-job-group.longhorn.io/postgres-backup: enabled
+      accessModes:
+          - ReadWriteOnce
+      resources:
+        requests:
+          memory: 18Gi
+          cpu: 2
+        limits:
+          memory: 24Gi
+          cpu: 3
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        namespace: "monitoring"
+      prometheusRule:
+        enabled: true
+        namespace: "monitoring"

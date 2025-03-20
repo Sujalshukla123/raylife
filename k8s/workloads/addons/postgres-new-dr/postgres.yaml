@@ -1,0 +1,14 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: postgres-postgresql
+spec:
+  teamId: "postgres"
+  volume:
+    size: 100Gi
+  numberOfInstances: 1
+  postgresql:
+    version: "16"
+  standby:
+    standby_host: "10.10.11.22"
+    standby_port: "30840"

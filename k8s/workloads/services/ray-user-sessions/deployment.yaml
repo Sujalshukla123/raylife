@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-user-sessions
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: ray-user-sessions
+  template:
+    metadata:
+      labels:
+        app: ray-user-sessions
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: ray-user-sessions
+        image: truecomtelesoftindia/ray-flink-jobs:8.0.13-SNAPSHOT
+        envFrom:
+        - configMapRef:
+            name: common-cm
+        command: flink run -m jobmanager:8081 -p 5 -c com.truecom.flink.job.QuotaJob /opt/flink/raycloud/app.jar --inputTopic quota.input --outputTopic quota.output --groupId quotaGroup --bootstrapServers ${KAFKA_URL} --username admin --password ${KAFKA_PASSWORD} --securityProtocol SASL_PLAINTEXT --checkpointDir file:///var/raycloud/checkpoint/quota

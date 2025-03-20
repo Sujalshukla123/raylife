@@ -1,0 +1,22 @@
+version: '2'
+services:
+  ray-lighthouse-service:
+    image: truecomtelesoftindia/ray-lighthouse-service:latest
+    container_name: ray-lighthouse-service
+    network_mode: host
+    volumes:
+      - ~/ray/docker-volumes/ray-lighthouse-service:/root/ray
+    environment:
+      - _JAVA_OPTIONS=-Xmx1024m -Xms256m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1
+      - JHIPSTER_SLEEP=0 # gives time for the JHipster Registry to boot before the application
+      - JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET=TThxenExXncjdD84J30hMXpBLTY5fUMmQzx1KVRydWVjb21NaXJCYWg0THljPSw6SmQ1WUk1Z3xTWD1XSj55QzAoNHVQeH09Y0I/NixGZSI3fnt9eGp7eUZNPC5GSyF8Wih+UWdwSntsSX1rb2Z4bD52eCdbJkkiLk0jTEcrPU9hS3onOQ==
+      - LOGSTASH_HOST=logstash
+      - LOGSTASH_PORT=5000
+    ports:
+      - 38116:38116
+    restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "2"
+        max-size: "500m"

@@ -1,0 +1,9 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+    name: ray-radius-service
+spec:
+  image: truecomtelesoftindia/ray-radius-service
+  interval: 1m0s
+  secretRef:
+    name: regcred

@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-radius-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ray-radius-service
+  template:
+    metadata:
+      labels:
+        app: ray-radius-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-radius-service
+          image: truecomtelesoftindia/ray-radius-service:8.0.2-SNAPSHOT-master-a92a280-274 # {"$imagepolicy": "default:ray-radius-service"}
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          livenessProbe:
+            httpGet:
+              path: /management/health
+              port: 38086
+            initialDelaySeconds: 600
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /management/health
+              port: 38086
+            initialDelaySeconds: 300
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "256m"
+            limits:
+              memory: "5Gi"
+              cpu: "512m"
+          env:
+            - name: SPRING_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: _JAVA_OPTIONS
+              value: -Xmx3276m -Xms2048m -Dapplication.apMode=false -Dapplication.neighbourApsEnable=true -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin
+            - name: SPRING_DATASOURCE_URL
+              value: ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_RADIUS}${APPLICATION_NAME_RADIUS}
+            - name: SERVICE_DNS_NAME
+              value: ray-radius-service-headless.default.svc.cluster.local
+            - name: KAFKA_JAAS_ENABLED
+              value: "true"
+            - name: FLINK_RUNNING_JOB_COUNT_NOTIFICATION_WEBHOOK
+              value: https://hooks.slack.com/services/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
+            - name: FLINK_RUNNING_JOB_COUNT_NOTIFICATION_CHANNEL
+              value: production-metrics-event
+          ports:
+            - containerPort: 38086

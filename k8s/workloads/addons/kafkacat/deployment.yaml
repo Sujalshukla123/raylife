@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafkacat-deployment
+  labels:
+    app: kafkacat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafkacat
+  template:
+    metadata:
+      labels:
+        app: kafkacat
+    spec:
+      containers:
+      - name: kafkacat
+        image: confluentinc/cp-kafkacat:latest
+        command: ["/bin/sh"]
+        args: ["-c", "sleep 3600"]
+        securityContext:
+          runAsUser: 0
+          allowPrivilegeEscalation: true
+

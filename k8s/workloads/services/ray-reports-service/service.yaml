@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ray-reports-service
+spec:
+  type: NodePort
+  selector:
+    app: ray-reports-service
+  ports:
+    - protocol: TCP
+      port: 38112
+      targetPort: 38112
+      nodePort: 32112

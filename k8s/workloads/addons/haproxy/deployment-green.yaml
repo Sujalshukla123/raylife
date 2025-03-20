@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: haproxy-green
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: haproxy
+      version: 3.0.0
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: haproxy
+        version: 3.0.0
+    spec:
+      containers:
+      - image: truecomtelesoftindia/haproxy-reload:2.0.1
+        imagePullPolicy: Always
+        name: haproxy
+        ports:
+        - containerPort: 8998
+          name: haproxy-stats
+          protocol: TCP
+        - containerPort: 8884
+          name: haproxy-mqtt
+          protocol: TCP
+        - containerPort: 1883
+          name: haproxy-plain
+          protocol: TCP
+        - containerPort: 8888
+          name: haproxy-healthz
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 8888
+            scheme: HTTP
+          initialDelaySeconds: 25
+          periodSeconds: 25
+          successThreshold: 1
+          timeoutSeconds: 1
+        # resources:
+        #   limits:
+        #     cpu: "1"
+        #     memory: 2Gi
+        #   requests:
+        #     cpu: "1"
+        #     memory: 512Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /usr/local/etc/haproxy
+          name: config-volume
+          readOnly: true
+        - mountPath: /etc/ssl/certs
+          name: cert-volume
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: haproxy-config
+        name: config-volume
+      - configMap:
+          defaultMode: 420
+          name: haproxy-cert
+        name: cert-volume

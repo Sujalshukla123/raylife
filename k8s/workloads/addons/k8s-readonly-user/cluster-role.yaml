@@ -1,0 +1,15 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: k8s-readonly-user-rolebinding
+  namespace: kube-system
+subjects:
+- kind: User
+  # Here mention the user that was specified while running the Step 2 in "/CN=<username>"
+  name: k8s-readonly-user 
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  # Here mention the name of role
+  name: k8s-readonly-user-role
+  apiGroup: rbac.authorization.k8s.io

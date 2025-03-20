@@ -1,0 +1,31 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: alb
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: aws-load-balancer-controller
+      version: '1.4.7'
+      sourceRef:
+        kind: HelmRepository
+        name: eks-charts
+        namespace: kube-system
+      interval: 1m
+
+  # Default values
+  values:
+    serviceAccount:
+      name: load-balancer-controller
+      annotations:
+        eks.amazonaws.com/role-arn:  "arn:aws:iam::582395889164:role/irsa-ap-south-1-Ray-Prod-Cluster-load-balancer-controller"
+    clusterName: Ray-Prod-Cluster
+    disableIngressClassAnnotation: true
+    resources:
+      limits:
+        cpu: 100m
+        memory: 300Mi
+      requests:
+        cpu: 100m
+        memory: 300Mi

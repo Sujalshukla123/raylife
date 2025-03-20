@@ -1,0 +1,13 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImagePolicy
+metadata:
+  name: ray-batch-service
+spec:
+  imageRepositoryRef:
+    name: ray-batch-service
+  filterTags:
+    pattern: "^.+-dev-[a-fA-F0-9]+-[0-9]+-(?P<ts>.*)"
+    extract: "$ts"
+  policy:
+    numerical:
+      order: asc

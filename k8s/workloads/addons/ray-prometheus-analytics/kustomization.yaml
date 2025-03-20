@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: analytics
+resources:
+#  - cdash-template.yaml
+  - grafana-image-render-service.yaml
+  - grafana-image-renderer.yaml
+  - helm-repo.yaml
+  - helm-release.yaml
+  # - letsencrypt-certificate.yaml
+  - nginx-auth-pushprox.yaml
+  - prometheus-rules.yaml
+  - pushprox-ingress.yaml
+  - pushprox-service.yaml
+  - pushprox.yaml
+  - sd-proxy-deployment.yaml
+  - sd-proxy-service.yaml
+  - rayprod-analytics-tls-cert.yaml

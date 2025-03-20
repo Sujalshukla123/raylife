@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ray-vendor-service-headless
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: ray-vendor-service
+  ports:
+  - name: hazelcast
+    port: 5701

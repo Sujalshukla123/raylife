@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-statistics-service
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: ray-statistics-service
+  template:
+    metadata:
+      labels:
+        app: ray-statistics-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-statistics-service
+          image: truecomtelesoftindia/ray-statistics-service:8.0.0-SNAPSHOT-master-d02ddfb-413 # {"$imagepolicy": "default:ray-statistics-service"}
+          livenessProbe:
+            httpGet:
+              path: /management/health
+              port: 38083
+            initialDelaySeconds: 600
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /management/health
+              port: 38083
+            initialDelaySeconds: 450
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "7Gi"
+              cpu: "256m"
+            limits:
+              memory: "10.5Gi"
+              cpu: "512m"
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+
+            - name: SPRING_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: APPLICATION_DATASOURCE_POSTGRESQL_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: APPLICATION_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: CRATE_POOL_SIZE
+              value: "250"
+            - name: PG_POOL_SIZE
+              value: "15"
+            - name: JDBC_URL
+              value: ${CRATE_DATASOURCE_URL}${CRATE_STATISTICS_SCHEMA_NAME}
+            - name: SERVICE_DNS_NAME
+              value: ray-statistics-service-headless.default.svc.cluster.local
+            - name: SPRING_DATASOURCE_URL
+              value: ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_STATISTICS}${APPLICATION_NAME_STATISTICS}
+            - name: CONNECTION_TIMEOUT
+              value: "110000"
+            - name: _JAVA_OPTIONS
+              value: "-Xmx6000m -Xms3072m -Dapplication.apMode=false -Dapplication.neighbourApsEnable=true -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin"
+          ports:
+            - containerPort: 38083

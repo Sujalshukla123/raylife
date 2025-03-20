@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-controller-schema
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ray-controller-schema
+  template:
+    metadata:
+      labels:
+        app: ray-controller-schema
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-controller-schema
+          image: truecomtelesoftindia/ray-controller-schema:8.0.1
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres-postgresql.postgres:5432/RayApp?currentSchema=controller&ApplicationName=controller
+            - name: POSTGRES_HOST
+              value: postgres-postgresql.postgres
+            - name: POSTGRES_USER
+              value: postgres
+            - name: PGPASSWORD
+              value: "#B8vLq9zNp$6u@"
+          ports:
+            - containerPort: 80

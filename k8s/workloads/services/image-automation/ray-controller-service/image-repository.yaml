@@ -1,0 +1,9 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+    name: ray-controller-service
+spec:
+  image: truecomtelesoftindia/ray-controller-service
+  interval: 1m0s
+  secretRef:
+    name: regcred

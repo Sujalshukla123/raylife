@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: crate-temp
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: crate-temp
+  serviceName: crate-set-temp
+  template:
+    metadata:
+      labels:
+        app: crate-temp
+    spec:
+      containers:
+      - command:
+        - /docker-entrypoint.sh
+        - -Ccluster.name=${CLUSTER_NAME}
+        - -Cnode.name=${HOSTNAME}
+        - -Ccluster.initial_master_nodes=crate-temp-0
+        - -Cdiscovery.seed_providers=srv
+        - -Cdiscovery.srv.query=_crate-int-t._tcp.crate-internal-service-temp.${NAMESPACE}.svc.cluster.local
+        - -Cgateway.recover_after_nodes=2
+        - -Cgateway.recover_after_time=120
+        - -Cgateway.expected_nodes=${EXPECTED_NODES}
+        - -Cpath.data=/data
+        env:
+        - name: CRATE_HEAP_SIZE
+          value: 8120m
+        - name: EXPECTED_NODES
+          value: "3"
+        - name: CLUSTER_NAME
+          value: ray-crate-temp
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        image: truecomtelesoftindia/crate:4.0.7
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /static/conf/plugins.json
+            port: 4200
+            scheme: HTTP
+          initialDelaySeconds: 25
+          periodSeconds: 25
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: crate-temp
+        ports:
+        - containerPort: 4300
+          name: crate-int-t
+          protocol: TCP
+        - containerPort: 4200
+          name: crate-web-t
+          protocol: TCP
+        - containerPort: 5432
+          name: postgres-t
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /static/conf/plugins.json
+            port: 4200
+            scheme: HTTP
+          initialDelaySeconds: 25
+          periodSeconds: 25
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 512m
+            memory: 8Gi
+          requests:
+            cpu: 512m
+            memory: 6Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: data
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: regcred
+      initContainers:
+      - command:
+        - sysctl
+        - -w
+        - vm.max_map_count=262144
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        name: init-sysctl
+        resources: {}
+        securityContext:
+          privileged: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 61
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Gi
+      volumeMode: Filesystem
+

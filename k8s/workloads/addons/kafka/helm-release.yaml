@@ -1,0 +1,66 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ray-kafka-prod
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: ./charts/kafka
+      version: '0.21.6'
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+      interval: 1m
+  values:
+    replicas: 3
+    zookeeper:
+      enabled: false
+      url: ray-zookeeper-prod-cp-zookeeper
+    jaas:
+      enabled: true
+      password: yJnF7ns9G4cjGHD
+      username: admin
+    external:
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+        service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
+        service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+        service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+        service.beta.kubernetes.io/aws-load-balancer-type: nlb
+      distinct: true
+      dns:
+        useExternal: false
+        useInternal: true
+      domain: test-kafka.internal
+      enabled: false
+      type: LoadBalancer
+    imageTag: 6.0.1
+    jmx:
+      configMap:
+        enabled: false
+    kafkaHeapOptions: -Xmx2500M -Xms2500M
+    persistence:
+      size: 100Gi
+    resources:
+      limits:
+        cpu: 250m
+        memory: 3072Mi
+      requests:
+        cpu: 200m
+        memory: 2611Mi
+    testsEnabled: false
+    securityContext:
+      runAsUser: 0
+    configurationOverrides:
+      advertised.listeners: EXTERNAL://${RELEASE_NAME}-$((${KAFKA_BROKER_ID})).default.internal:19092
+      auto.create.topics.enable: true
+      auto.leader.rebalance.enable: true
+      confluent.support.metrics.enable: false
+      default.replication.factor: "2"
+      delete.topic.enable: true
+      listener.security.protocol.map: PLAINTEXT:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT,EXTERNAL:SASL_PLAINTEXT
+      log.retention.hours: "24"
+      message.max.bytes: "20971520"
+      num.partitions: "6"    

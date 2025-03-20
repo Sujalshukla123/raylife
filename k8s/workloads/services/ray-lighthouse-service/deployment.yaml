@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-lighthouse-service
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: ray-lighthouse-service
+  template:
+    metadata:
+      labels:
+        app: ray-lighthouse-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-lighthouse-service
+          image: truecomtelesoftindia/ray-lighthouse-service:latest
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: aws-ecs
+          ports:
+            - containerPort: 38116
+          volumeMounts:
+            - mountPath: "/home/ubuntu/ray"
+              name: lighthouse-volume
+      volumes:
+        - name: lighthouse-volume
+          persistentVolumeClaim:
+            claimName: lighthouse-volume
+

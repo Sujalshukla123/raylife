@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-jsreports-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ray-jsreports-service
+  template:
+    metadata:
+      labels:
+        app: ray-jsreports-service
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: ray-jsreports-service
+        image: jsreport/jsreport:2.5.0
+        envFrom:
+        - configMapRef:
+            name: common-cm
+        env:
+          - name: allowLocalFilesAccess
+            value: "true"
+          - name: store_provider
+            value: fs
+          - name: extensions_fs-store_dataDirectory
+            value: resources/reports
+          - name: extensions_fs-store_syncModifications
+            value: "true"
+          - name: extensions_scripts_allowedModules
+            value: "*"
+        ports:
+        - containerPort: 5488
+        volumeMounts:
+          - mountPath: "/app/resources/reports"
+            name: js-reports-volume
+      volumes:
+        - name: js-reports-volume
+          persistentVolumeClaim:
+            claimName: reports-volume

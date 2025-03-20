@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-job-service
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: ray-job-service
+  template:
+    metadata:
+      labels:
+        app: ray-job-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-job-service
+          image: truecomtelesoftindia/ray-job-service:8.0.0-SNAPSHOT-master-6a92033-520 # {"$imagepolicy": "default:ray-job-service"}
+          livenessProbe:
+            httpGet:
+              path: /management/health
+              port: 38082
+            initialDelaySeconds: 500
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /management/health
+              port: 38082
+            initialDelaySeconds: 500
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "512m"
+            limits:
+              memory: "5Gi"
+              cpu: "1024m"
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: SPRING_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: SPRING_DATASOURCE_URL
+              value: ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_JOB}${APPLICATION_NAME_JOB}
+            - name: SERVICE_DNS_NAME
+              value: ray-job-service-headless.default.svc.cluster.local
+            - name: _JAVA_OPTIONS
+              value: "-Xmx3276m -Xms2048m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin"
+            - name: APP_STORE_ENABLED
+              value: "true"
+            - name: SLACK_PENDING_JOB_NOTIFICATION_CHANNEL
+              value: "ray-prod-pending-jobs"
+            - name: SLACK_FAILED_JOB_NOTIFICATION_CHANNEL
+              value: "ray-prod-failed-jobs"
+            - name: SLACK_PENDING_JOB_NOTIFICATION_WEBHOOK
+              value: "https://hooks.slack.com/services/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"
+            - name: SLACK_FAILED_JOB_NOTIFICATION_WEBHOOK
+              value: "https://hooks.slack.com/services/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"
+            - name: SOFTWARE_PACKAGE
+              value: "FULL"
+          ports:
+            - containerPort: 38082

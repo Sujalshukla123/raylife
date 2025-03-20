@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-controller-dashboard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ray-controller-dashboard
+  template:
+    metadata:
+      labels:
+        app: ray-controller-dashboard
+    spec:
+      volumes:
+      - name: config-volume
+        configMap:
+          name: ray-controller-dashboard-cm
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: ray-controller-dashboard
+        image: truecomtelesoftindia/ray-controller-dashboard:8.0.0-SNAPSHOT-master-574f11b-1327 # {"$imagepolicy": "default:ray-controller-dashboard"}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 120
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 120
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: "128m"
+          limits:
+            memory: "600Mi"
+            cpu: "256m"
+        envFrom:
+        - configMapRef:
+            name: common-cm
+        volumeMounts:
+        - name: config-volume
+          mountPath: /usr/share/nginx/html/assets/environment
+        ports:
+        - containerPort: 80

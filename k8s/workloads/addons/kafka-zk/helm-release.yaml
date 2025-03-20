@@ -1,0 +1,39 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ray-zookeeper-prod
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: ./charts/cp-zookeeper
+      version: '1.0'
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+      interval: 1m
+  values:
+    imageTag: 6.0.1
+    securityContext:
+      runAsUser: 0
+    resources:
+      limits:
+        cpu: 200m
+        memory: 3072Mi
+      requests:
+        cpu: 150m
+        memory: 2765Mi
+    persistence:
+      dataDirSize: 50Gi
+      dataLogDirSize: 50Gi
+    prometheus:
+      jmx:
+        enabled: false
+    jaas:
+      enabled: true
+      password: yJnF7ns9G4cjGHD
+      username: admin
+    podManagementPolicy: Parallel
+    heapOptions: -Xms512M -Xmx2600M
+

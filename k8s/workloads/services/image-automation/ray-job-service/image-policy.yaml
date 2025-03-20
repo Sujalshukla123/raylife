@@ -1,0 +1,13 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImagePolicy
+metadata:
+  name: ray-job-service
+spec:
+  imageRepositoryRef:
+    name: ray-job-service
+  filterTags:
+    pattern: "master-[a-z0-9]+-(?P<ts>[0-9]+)"
+    extract: $ts
+  policy:
+    numerical:
+      order: asc

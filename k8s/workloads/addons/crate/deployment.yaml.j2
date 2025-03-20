@@ -1,0 +1,85 @@
+{% if storage == "minio" %}
+{% set create_repo_command = "CREATE REPOSITORY $SNAPSHOT_REPO TYPE s3 WITH (bucket = '$CRATE_BUCKET_NAME', access_key = '$AWS_ACCESS_KEY_ID', secret_key = '$AWS_SECRET_ACCESS_KEY', endpoint = 's3.amazonaws.com', base_path='crate-backup/', protocol = 'http');" %}
+{% else %}
+{% set create_repo_command = "CREATE REPOSITORY $SNAPSHOT_REPO TYPE s3 WITH (bucket = '$CRATE_BUCKET_NAME', access_key = '$AWS_ACCESS_KEY_ID', secret_key = '$AWS_SECRET_ACCESS_KEY', endpoint = 's3.amazonaws.com', base_path='crate-backup/');" %}
+{% endif %}
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: crate
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: crate
+  serviceName: crate-set
+  template:
+    metadata:
+      labels:
+        app: crate
+    spec:
+      containers:
+      - name: crate
+        command:
+        - /docker-entrypoint.sh
+        - -Ccluster.name=${CLUSTER_NAME}
+        - -Cnode.name=${HOSTNAME}
+        - -Ccluster.initial_master_nodes=crate-0
+        - -Cdiscovery.seed_providers=srv
+        - -Cdiscovery.srv.query=_crate-internal._tcp.crate-internal-service.${NAMESPACE}.svc.cluster.local
+        - -Cgateway.recover_after_nodes=2
+        - -Cgateway.recover_after_time=240
+        - -Cgateway.expected_nodes=${EXPECTED_NODES}
+        - -Cpath.data=/data
+        lifecycle:
+          postStart:
+            exec:
+              command:
+                - "/bin/sh"
+                - "-c"
+                - |
+                  (sleep 120 && \
+                  if ! crash -c "SELECT * FROM sys.repositories WHERE name = '$SNAPSHOT_REPO';" | grep '$SNAPSHOT_REPO'; then \
+                    crash -c "{{ create_repo_command }}" ;\
+                  else \
+                    echo "Repository $SNAPSHOT_REPO already exists." ;\
+                  fi) &
+        env:
+        - name: CRATE_BUCKET_NAME
+          value: "crate-backup-for-cronjob"
+        - name: SNAPSHOT_REPO
+          value: "crate_s3_repo"
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: AWS_SECRET_ACCESS_KEY
+        - name: CLUSTER_NAME
+          value: ray-crate
+        image: crate:4.8
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - mountPath: /data
+          name: data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Gi
+      volumeMode: Filesystem

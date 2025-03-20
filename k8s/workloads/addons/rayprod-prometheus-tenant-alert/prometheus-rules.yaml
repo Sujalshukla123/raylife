@@ -1,0 +1,112 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: rayprod-alert
+  labels:
+    release: helmrelease-rayprod
+spec:
+  groups:
+    - name: sd-wan-alerts
+      rules:
+        - alert: interfaceStatusDown
+          annotations:
+            description:
+              Interface {{$labels.interfaceName}} is down for more than 10
+              minutes.
+            summary: Interface is down
+          expr: interface_status < 0
+          for: 2m
+          labels:
+            severity: warning
+        - alert: internetDown
+          annotations:
+            description:
+              Internet/Intranet of {{$labels.interfaceName}} is down for more
+              than 10 minutes.
+            summary: Internet on an interface is down
+          expr: sdwan_sla_status < 0
+          for: 2m
+          labels:
+            severity: warning
+        - alert: highPacketLoss
+          annotations:
+            description:
+              Packet Loss isGreaterOrLess than 10 found on {{$labels.interfaceName}}
+              for more than 10 minutes. Last known Alerting Value is {{$value}}.
+            summary: High Packet Loss
+          expr: sdwan_sla_packetLoss > 10
+          for: 2m
+          labels:
+            severity: warning
+        - alert: highJitter
+          annotations:
+            description:
+              Jitter isGreaterOrLess than 5 found on {{$labels.interfaceName}}
+              for more than 10 minutes. Last known Alerting Value is {{$value}}.
+            summary: High Jitter
+          expr: sdwan_sla_jitter > 5
+          for: 2m
+          labels:
+            severity: warning
+        - alert: highLatency
+          annotations:
+            description:
+              Latency isGreaterOrLess than 100 found on {{$labels.interfaceName}}
+              for more than 10 minutes. Last known Alerting Value is {{$value}}.
+            summary: High Latency
+          expr: sdwan_sla_avglatency > 100
+          for: 2m
+          labels:
+            severity: warning
+        - alert: highCpu
+          annotations:
+            description:
+              CPU Busier isGreaterOrLess than 95 found for more than 10 minutes.
+              Last known Alerting Value is {{$value}}.
+            summary: High CPU
+          expr: node_cpu_usage >= 95
+          for: 2m
+          labels:
+            severity: warning
+        - alert: highMemory
+          annotations:
+            description:
+              Memory Usage isGreaterOrLess than 85 found for more than 10 minutes.
+              Last known Alerting Value is {{$value}}.
+            summary: High Memory
+          expr:
+            ((node_memory_MemTotal_bytes - node_memory_MemFree_bytes) / (node_memory_MemTotal_bytes))
+            * 100 > 85
+          for: 2m
+          labels:
+            severity: warning
+        - alert: highDisk
+          annotations:
+            description:
+              Disk usage isGreaterOrLess than 60 for more than 10 minutes.
+              Last known Alerting Value is {{$value}}.
+            summary: High Disk Usage
+          expr: node_root_disk_usage > 60
+          for: 2m
+          labels:
+            severity: warning
+        - alert: nodeUploadSpeed
+          annotations:
+            description:
+              Node Upload Speed is less than 75 for more than 10 minutes.
+              Last known Alerting Value is {{$value}}.
+            summary: Node Upload Speed
+          expr: node_upload_speed_percentage{interfaceName!="",type=~"WAN"}
+          for: 2m
+          labels:
+            severity: warning
+        - alert: nodeDownloadSpeed
+          annotations:
+            description:
+              Node Download Speed is less than 75 for more than 10 minutes.
+              Last known Alerting Value is {{$value}}.
+            summary: Node Download Speed
+          expr: node_download_speed_percentage{interfaceName!="",type=~"WAN"}
+          for: 2m
+          labels:
+            severity: warning

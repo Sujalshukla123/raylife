@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-hub-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ray-hub-service
+  template:
+    metadata:
+      labels:
+        app: ray-hub-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-hub-service
+          image: truecomtelesoftindia/ray-hub-service:8.0.0-SNAPSHOT-master-09865a0-736 # {"$imagepolicy": "default:ray-hub-service"}
+          livenessProbe:
+            httpGet:
+              path: /ray-hub-service/management/health
+              port: 38099
+            initialDelaySeconds: 400
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /ray-hub-service/management/health
+              port: 38099
+            initialDelaySeconds: 400
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "5Gi"
+              cpu: "800m"
+            limits:
+              memory: "10Gi"
+              cpu: "800m"
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: SPRING_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: SPRING_DATASOURCE_URL
+              value: ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_HUB}${APPLICATION_NAME_HUB}
+            - name: SERVICE_DNS_NAME
+              value: ray-hub-service-headless.default.svc.cluster.local
+            - name: AWS_ENABLE
+              value: "false"
+            - name: _JAVA_OPTIONS
+              value: "-Xmx6500m -Xms2048m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin"
+          ports:
+            - containerPort: 38099
+          volumeMounts:
+            - mountPath: "/root/hub"
+              name: hub-volume
+            - mountPath: "/root/hub/certificates"
+              name: ray-hub-service-cm
+      volumes:
+        - name: hub-volume
+          persistentVolumeClaim:
+            claimName: hub-volume
+        - name: ray-hub-service-cm
+          configMap:
+            name: ray-hub-service-cm

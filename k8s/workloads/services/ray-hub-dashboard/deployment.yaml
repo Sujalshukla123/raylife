@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-hub-dashboard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ray-hub-dashboard
+  template:
+    metadata:
+      labels:
+        app: ray-hub-dashboard
+    spec:
+      volumes:
+      - name: config-volume
+        configMap:
+          name: ray-hub-dashboard-cm
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: ray-hub-dashboard
+        image: truecomtelesoftindia/ray-hub-dashboard:8.0.0-SNAPSHOT-master-4ca065c-8 # {"$imagepolicy": "default:ray-hub-dashboard"}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 180
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 180
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 5
+        resources:
+          requests:
+            memory: "600Mi"
+            cpu: "64m"
+          limits:
+            memory: "600Mi"
+            cpu: "64m"
+        envFrom:
+        - configMapRef:
+            name: common-cm
+        volumeMounts:
+        - name: config-volume
+          mountPath: /usr/share/nginx/html/assets/environment
+        ports:
+        - containerPort: 80

@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: crate-backup-cronjob
+  namespace: default
+spec:
+  # schedule: "0 */1 * * *" 
+  schedule: "*/1 * * * *" 
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          imagePullSecrets:
+          - name: regcred
+          containers:
+          - name: crate-backup
+            image: truecomtelesoftindia/crate-cronjob:latest
+            command: ["/bin/sh", "-c", "/app/backup.sh"]
+            env:
+            - name: CRATEDB_HOST
+              value: "crate-internal-service.default.svc.cluster.local"
+            - name: SNAPSHOT_REPO
+              value: crate_s3_repo
+          restartPolicy: OnFailure

@@ -1,0 +1,9 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+    name: ray-hub-dashboard
+spec:
+  image: truecomtelesoftindia/ray-hub-dashboard
+  interval: 1m0s
+  secretRef:
+    name: regcred

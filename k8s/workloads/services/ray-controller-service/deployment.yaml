@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-controller-service
+spec:
+  replicas: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 35%
+      maxUnavailable: 10%
+  selector:
+    matchLabels:
+      app: ray-controller-service
+  template:
+    metadata:
+      labels:
+        app: ray-controller-service
+    spec:
+      priorityClassName: high-priority
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-controller-service
+          image: truecomtelesoftindia/ray-controller-service:8.0.0-SNAPSHOT-master-cd8662d-1099 # {"$imagepolicy": "default:ray-controller-service"}
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          livenessProbe:
+            httpGet:
+              path: /management/health
+              port: 38081
+            initialDelaySeconds: 500
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /management/health
+              port: 38081
+            initialDelaySeconds: 500
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "12Gi"
+              cpu: "1024m"
+            limits:
+              memory: "15Gi"
+              cpu: "2048m"
+          ports:
+            - containerPort: 38081
+          env:
+            - name: SPRING_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: APPLICATION_DATASOURCE_POSTGRESQL_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: APPLICATION_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_URL
+              value: ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_CONTROLLER}${APPLICATION_NAME_CONTROLLER}
+            - name: _JAVA_OPTIONS
+              value: -Xmx10444m -Xms6144m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin
+            - name: SERVICE_DNS_NAME
+              value: "ray-controller-service-headless.default.svc.cluster.local"
+          volumeMounts:
+            - mountPath: "/home/ubuntu/controller"
+              name: controller-volume
+      volumes:
+        - name: controller-volume
+          persistentVolumeClaim:
+            claimName: controller-volume

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-batch-service
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: ray-batch-service
+  template:
+    metadata:
+      labels:
+        app: ray-batch-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-batch-service
+          image: truecomtelesoftindia/ray-batch-service:0.0.1-SNAPSHOT-3039
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_BATCH}${APPLICATION_NAME_BATCH}
+            - name: SERVICE_DNS_NAME
+              value: ray-batch-service-headless.default.svc.cluster.local
+            - name: JDBC_CRATE_BACKUP_URL
+              value: ${CRATE_DATASOURCE_URL}${CRATE_STATISTICS_SCHEMA_NAME}
+          ports:
+            - containerPort: 38113
