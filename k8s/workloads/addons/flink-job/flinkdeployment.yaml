@@ -12,8 +12,8 @@ spec:
     state.backend: rocksdb
     state.checkpoints.dir: "s3://ray-flink-onprem-prod-operator/checkpoint"
     state.savepoints.dir: "s3://ray-flink-onprem-prod-operator/savepoint"
-    s3.access-key: "AKIAYPGMAAYGMJVKUBZB" 
-    s3.secret-key: "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"
+    s3.access-key: " " 
+    s3.secret-key: " "
     kubernetes.operator.periodic.savepoint.interval: 15m
     kubernetes.operator.periodic.checkpoint.interval: 1m
     execution.checkpointing.savepoint-dir: "s3://ray-flink-onprem-prod-operator/savepoint"

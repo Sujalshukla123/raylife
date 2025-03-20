@@ -65,9 +65,9 @@ spec:
             - name: AWS_RADIUS_CDR_BUCKET_NAME
               value: radius-cdr-dev
             - name: AWS_ASSESS_KEY
-              value: AKIAQPFEWONAAB5ZFHUB
+              value: 
             - name: AWS_SECRET_KEY
-              value: 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
+              value: 
             - name: JDBC_CRATE_BACKUP_URL
               value: ${CRATE_DATASOURCE_URL}${CRATE_STATISTICS_SCHEMA_NAME}
             - name: SPRING_OUTPUT_ANSI_ENABLED

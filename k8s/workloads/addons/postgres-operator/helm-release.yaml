@@ -22,8 +22,8 @@ spec:
       pod_antiaffinity_topology_key: physical_host
       pod_antiaffinity_preferred_during_scheduling: true
     configLogicalBackup:
-      logical_backup_s3_secret_access_key: Fk3ZgrUAY+Xv+0mHpHP4F834neqioWeXnSURPSCz
-      logical_backup_s3_access_key_id: AKIAYPGMAAYGNLMSK4SM
+      logical_backup_s3_secret_access_key: 
+      logical_backup_s3_access_key_id: 
       logical_backup_s3_bucket: "ray-onprem-dev-flink-recovery"
       logical_backup_schedule: "*/15 * * * *"
       logical_backup_s3_region: ap-south-1

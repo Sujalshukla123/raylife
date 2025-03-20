@@ -45,9 +45,9 @@ spec:
                 name: common-cm
           env:
             - name: AWS_SECRET_ACCESS_KEY
-              value: qSL26W4yujVt9+Fl0b45L8CDvP178AQRb8lnjY24
+              value: 
             - name: AWS_ACCESS_KEY_ID
-              value: AKIAYPGMAAYGMJVKUBZB
+              value: YGMJVKUBZB
             - name: ENABLE_EUREKA
               value: "false"
             - name: POSTGRESQL_URL
