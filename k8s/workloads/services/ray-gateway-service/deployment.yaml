@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-gateway-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ray-gateway-service
+  template:
+    metadata:
+      labels:
+        app: ray-gateway-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-gateway-service
+          image: truecomtelesoftindia/ray-gateway-service:8.0.0-SNAPSHOT-master-e1077c0-62 # {"$imagepolicy": "default:ray-gateway-service"}
+          livenessProbe:
+            httpGet:
+              path: /management/health
+              port: 38080
+            initialDelaySeconds: 300
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /management/health
+              port: 38080
+            initialDelaySeconds: 300
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "3Gi"
+              cpu: "256m"
+            limits:
+              memory: "4Gi"
+              cpu: "512m"
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: SPRING_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: APPLICATION_DATASOURCE_POSTGRESQL_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: APPLICATION_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_URL
+              value: ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_CONTROLLER}${APPLICATION_NAME_GATEWAY}
+            - name: _JAVA_OPTIONS
+              value: "-Xmx2500m -Xms1024m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin"
+            - name: SERVICE_DNS_NAME
+              value: ray-gateway-service-headless.default.svc.cluster.local
+          ports:
+            - containerPort: 38080

@@ -1,0 +1,41 @@
+ 1. open terminal.
+ 2. sudo su
+ 3. execute below commands : 
+    3.1 apt install pip
+    3.2 pip install certbot
+    3.3 pip install certbot-dns-route53
+4. Login into AWS.
+5. Copy credentials and paste in teminal.
+6. Execute command :  aws sso login 
+7. To generate certificate execute below command :
+    certbot certonly --dns-route53-propagation-seconds 30 --dns-route53 -d analytics.rayprod.monitoring.ray.life --non-interactive --agree-tos -m chirayu.patel@ray.life --config-dir ./raydir/config --work-dir ./raydir/workdir --logs-dir ./raydir/logsdir
+8. You may receive below output after execute above command 
+
+Saving debug log to /home/hushen/ray/docker/raydir/logsdir/letsencrypt.log
+Requesting a certificate for analytics.rayprod.monitoring.ray.life
+
+Successfully received certificate.
+Certificate is saved at: /home/hushen/ray/docker/raydir/config/live/analytics.rayprod.monitoring.ray.life/fullchain.pem
+Key is saved at:         /home/hushen/ray/docker/raydir/config/live/analytics.rayprod.monitoring.ray.life/privkey.pem
+This certificate expires on 2024-02-26.
+These files will be updated when the certificate renews.
+
+NEXT STEPS:
+- The certificate will need to be renewed before it expires. Certbot can automatically renew the certificate in the background, but you may need to take steps to enable that functionality. See https://certbot.org/renewal-setup for instructions.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+If you like Certbot, please consider supporting our work by:
+ * Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+ * Donating to EFF:                    https://eff.org/donate-le
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+9. The path of the certificate fullchain.pem and key privkey.pem is give in output.
+10. Navigate to that path.
+11. Execute below commands to get base64 encoded string.
+    11.1 cat fullchain.pem| base64 -w 0
+    11.2 cat privkey.pem |base64 -w 0
+12. Navigate to Bitbucket : rayprod-analytics-tls-cert.yaml 
+13. Edit the file and then copy base64 of fullchain.pem and paste value for key : tls.crt and then copy base64 of privkey.pem and paste value for key : tls.key
+14. Now check the URL : https://analytics.rayprod.monitoring.ray.life/?orgId=1 page will successfully loaded that means the certificate is assigned.
+
+ 

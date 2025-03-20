@@ -1,0 +1,41 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ingress-nginx
+  namespace: ingress-nginx
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: ingress-nginx
+      version: '4.7.0'
+      sourceRef:
+        kind: HelmRepository
+        name: ingress-nginx
+        namespace: ingress-nginx
+      interval: 1m
+  values:
+    controller:
+      replicaCount: 2
+      resources: 
+        requests:
+          cpu: 200m
+          memory: 600Mi
+        limits:
+          cpu: 300m
+          memory: 900Mi
+      config:
+        proxy-body-size: 50m
+      service:
+        type: LoadBalancer
+        loadBalancerIP: {{ingress_loadBalancerIP}}
+    tcp:
+      "8998" : "default/external-haproxy-service:8998"
+      "8884" : "default/external-haproxy-service:8884"
+      "8883" : "default/external-haproxy-service:8883"
+      # "8884": "default/ray-mqtt-prod:1883"
+  
+        # type: NodePort
+        # nodePorts:
+        #   http: 80
+        #   https: 443

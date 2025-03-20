@@ -1,0 +1,24 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: aws-ebs-csi
+  namespace: kube-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: aws-ebs-csi-driver
+      version: '2.16.0'
+      sourceRef:
+        kind: HelmRepository
+        name: aws-ebs-csi
+        namespace: kube-system
+      interval: 1m
+  values:
+    controller:
+      serviceAccount:
+        create: true
+        name: ebs-csi-controller-sa
+        annotations:
+          eks.amazonaws.com/role-arn: arn:aws:iam::582395889164:role/irsa-ap-south-1-Ray-Prod-Cluster-ebs-csi-controller-sa
+

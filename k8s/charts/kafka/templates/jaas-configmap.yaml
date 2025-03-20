@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  {{ include "kafka.fullname" . }}-jaas-configmap
+  labels:
+   {{- include "kafka.broker.labels" . | nindent 4 }}
+data:
+  broker.sasl.jaas.config: |+
+    KafkaServer {
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        username="{{ .Values.jaas.username }}"
+        password="{{ .Values.jaas.password }}"
+        user_admin="{{ .Values.jaas.password }}";
+    };
+    Client {
+        org.apache.zookeeper.server.auth.DigestLoginModule required
+        username="{{ .Values.jaas.username }}"
+        password="{{ .Values.jaas.password }}";
+    };

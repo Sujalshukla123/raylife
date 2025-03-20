@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-dashboard-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ray-dashboard-service
+  template:
+    metadata:
+      labels:
+        app: ray-dashboard-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      volumes:
+        - name: cache-volume
+          persistentVolumeClaim:
+            claimName: cache-volume
+      containers:
+        - name: ray-dashboard-service
+          image: truecomtelesoftindia/ray-dashboard-service:8.0.0-SNAPSHOT-master-12e07f4-383 # {"$imagepolicy": "default:ray-dashboard-service"}
+          livenessProbe:
+            httpGet:
+              path: /management/health
+              port: 38084
+            initialDelaySeconds: 800
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /management/health
+              port: 38084
+            initialDelaySeconds: 600
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "3Gi"
+              cpu: "2000m"
+            limits:
+              memory: "4Gi"
+              cpu: "3000m"
+          volumeMounts:
+            - mountPath: /root/dashboard
+              name: cache-volume
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: SPRING_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: APPLICATION_DATASOURCE_POSTGRESQL_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: APPLICATION_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_URL
+              value: ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_DASHBOARD}${APPLICATION_NAME_DASHBOARD}
+            - name: CRATE_POOL_SIZE
+              value: "100"
+            - name: PG_POOL_SIZE
+              value: "10"
+            - name: JDBC_URL
+              value: ${CRATE_DATASOURCE_URL}${CRATE_STATISTICS_SCHEMA_NAME}
+            - name: SERVICE_DNS_NAME
+              value: ray-dashboard-service-headless.default.svc.cluster.local
+            - name: _JAVA_OPTIONS
+              value: "-Xmx2500m -Xms1024m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin"
+            - name: CONNECTION_TIMEOUT
+              value: "110000"
+            - name: JHIPSTER_MAIL_BASE_URL
+              value: https://gatewaycloud.ray.life/ray-dashboard
+          ports:
+            - containerPort: 38084

@@ -1,0 +1,24 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ray-kafka-prod-0
+spec:
+  type: ExternalName
+  externalName: kafkacloud.ray.life
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ray-kafka-prod-1
+spec:
+  type: ExternalName
+  externalName: kafkacloud.ray.life
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ray-kafka-prod-2
+spec:
+  type: ExternalName
+  externalName: kafkacloud.ray.life

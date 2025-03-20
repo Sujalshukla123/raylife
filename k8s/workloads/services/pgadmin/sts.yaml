@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pgadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: pgadmin
+        image: dpage/pgadmin4
+        env: 
+        - name: PGADMIN_DEFAULT_EMAIL
+          value: admin@ray.life
+        - name: PGADMIN_DEFAULT_PASSWORD
+          value: test
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: pgadmin
+          mountPath: /var/lib/pgadmin
+  volumeClaimTemplates:
+  - metadata:
+      name: pgadmin
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

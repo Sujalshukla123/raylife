@@ -1,0 +1,42 @@
+apiVersion: flink.apache.org/v1beta1
+kind: FlinkDeployment
+metadata:
+  name: flink-job
+  namespace: default
+spec:
+  image: truecomtelesoftindia/ray-flink-jobs:latest
+  imagePullPolicy: Always
+  flinkVersion: v1_14
+  flinkConfiguration:
+    taskmanager.numberOfTaskSlots: "2"
+    state.backend: rocksdb
+    state.checkpoints.dir: "s3://ray-flink-onprem-prod-operator/checkpoint"
+    state.savepoints.dir: "s3://ray-flink-onprem-prod-operator/savepoint"
+    s3.access-key: " " 
+    s3.secret-key: " "
+    kubernetes.operator.periodic.savepoint.interval: 15m
+    kubernetes.operator.periodic.checkpoint.interval: 1m
+    execution.checkpointing.savepoint-dir: "s3://ray-flink-onprem-prod-operator/savepoint"
+    kubernetes.rest-service.exposed.type: "NodePort"
+    kubernetes.rest-service.exposed.node-port-address-type: "InternalIP"
+  serviceAccount: flink
+  jobManager:
+    resource:
+      memory: "5000m"
+      cpu: 1
+    replicas: 1
+  taskManager:
+    resource:
+      memory: "5000m"
+      cpu: 1
+    replicas: 1  # Number of TaskManager pods
+  job:
+    # initialSavepointPath: "s3://ray-flink-onprem-prod-operator/savepoint/savepoint-d1474a-2f26ad423559/"
+    upgradeMode: savepoint
+    args: ["-s","s3://ray-flink-onprem-prod-operator/savepoint","--checkpointDir", "s3://ray-flink-onprem-prod-operator/checkpoint", "--bootstrapServers", "kafka-new-broker-0.kafka-new-broker-headless.default.svc.cluster.local:9092, kafka-new-broker-1.kafka-new-broker-headless.default.svc.cluster.local:9092, kafka-new-broker-2.kafka-new-broker-headless.default.svc.cluster.local:9092", "--groupId","quotaGroup", "--inputTopic", "quota.input_3", "--outputTopic", "quota.output_3", "--jaasEnabled", "true", "--username", "admin", "--password", "yJnF7ns9G4cjGHD", "--backend", "rocksdb" ]
+    jarURI: local:///opt/flink/ray-flink-jobs-8.0.1-SNAPSHOT.jar
+    parallelism: 2
+  podTemplate:
+    spec: 
+      imagePullSecrets: 
+        - name: regcred

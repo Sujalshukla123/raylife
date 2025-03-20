@@ -1,0 +1,62 @@
+apiVersion: v1
+data:
+  haproxy.cfg: |
+    global
+      log stdout format raw local0 debug
+
+    resolvers awsdns
+      accepted_payload_size 8192
+      parse-resolv-conf
+    defaults
+      mode http
+      timeout client 10s
+      timeout connect 5s
+      timeout server 10s
+      timeout http-request 10s
+      log global
+
+    listen stats
+      bind 0.0.0.0:8998
+      mode http
+      stats auth admin:coldplay121
+      stats enable
+      stats realm Haproxy\ Statistics
+      stats refresh 20s
+      stats uri /stats
+      timeout client 3h # By default TCP keep-alive interval is 2hours in OS kernel, 'cat /proc/sys/net/ipv4/tcp_keepalive_time'
+      timeout server 3h
+      timeout connect 3h
+    
+    listen health_check_http_url
+      bind :8888
+      mode http
+      monitor-uri /healthz
+      option dontlognull
+    
+    listen mqtt
+      bind *:8884 ssl crt /etc/ssl/certs/server.pem verify required ca-file /etc/ssl/certs/chain-ca.crt
+      mode tcp
+      option tcplog
+      option clitcpka # For TCP keep-alive
+      tcp-request content capture dst len 15
+      timeout client 3h # By default TCP keep-alive interval is 2hours in OS kernel, 'cat /proc/sys/net/ipv4/tcp_keepalive_time'
+      timeout server 3h
+      timeout connect 3h
+      balance leastconn
+      server-template mqtt 8 ray-mqtt-prod-headless.default.svc.cluster.local:1884 maxconn 50000 resolvers awsdns check send-proxy-v2-ssl-cn init-addr none
+    
+    listen mqttplain
+      bind *:1883
+      mode tcp
+      option tcplog
+      option clitcpka # For TCP keep-alive
+      tcp-request content capture dst len 15
+      timeout client 3h # By default TCP keep-alive interval is 2hours in OS kernel, 'cat /proc/sys/net/ipv4/tcp_keepalive_time'
+      timeout server 3h
+      timeout connect 3h
+      balance leastconn
+      server-template mqtt 8 ray-mqtt-prod-headless.default.svc.cluster.local:1883 maxconn 50000 resolvers awsdns check init-addr none
+
+kind: ConfigMap
+metadata:
+  name: haproxy-config

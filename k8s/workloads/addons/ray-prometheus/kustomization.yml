@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: monitoring
+resources:
+  # - blackbox-exporter.yml
+  - helm-repo.yml
+  - helm-release.yml
+  - msteams-repo.yml
+  - helm-release-msteams.yml
+
+  # - msteams-repo.yml
+  # - helm-release-msteams.yml
+  # - servicemonitor.yml

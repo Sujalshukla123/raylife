@@ -1,0 +1,53 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: postgres-operator
+  namespace: postgres
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: postgres-operator
+      version: '1.13.0'
+      sourceRef:
+        kind: HelmRepository
+        name: postgres-operator
+        namespace: postgres
+      interval: 1m
+  values:
+    configKubernetes:
+      inherited_labels:
+      - recurring-job.longhorn.io/source
+      - recurring-job.longhorn.io/recurring-postgres-backups
+      pod_antiaffinity_topology_key: physical_host
+      pod_antiaffinity_preferred_during_scheduling: true
+    configLogicalBackup:
+      logical_backup_s3_secret_access_key: 
+      logical_backup_s3_access_key_id: 
+      logical_backup_s3_bucket: "ray-onprem-dev-flink-recovery"
+      logical_backup_schedule: "*/15 * * * *"
+      logical_backup_s3_region: ap-south-1
+    configGeneral:
+      sidecars:
+        - name: "exporter"
+          image: "quay.io/prometheuscommunity/postgres-exporter:latest"
+          ports:
+            - name: exporter
+              containerPort: 9187
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256M
+            requests:
+              cpu: 100m
+              memory: 200M
+          env:
+          - name: "DATA_SOURCE_URI"
+            value: "$(POD_NAME)/postgres?sslmode=require"
+          - name: "DATA_SOURCE_USER"
+            value: "$(POSTGRES_USER)"
+          - name: "DATA_SOURCE_PASS"
+            value: "$(POSTGRES_PASSWORD)"
+          - name: "PG_EXPORTER_AUTO_DISCOVER_DATABASES"
+            value: "true"

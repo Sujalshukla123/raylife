@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-backup-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ray-backup-service
+  template:
+    metadata:
+      labels:
+        app: ray-backup-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-backup-service
+          image: truecomtelesoftindia/ray-backup-service:8.0.0-SNAPSHOT-master-94634fb-77 # {"$imagepolicy": "default:ray-backup-service"}
+          livenessProbe:
+            httpGet:
+              path: /management/health
+              port: 38088
+            initialDelaySeconds: 800
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /management/health
+              port: 38088
+            initialDelaySeconds: 800
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "256m"
+            limits:
+              memory: "3Gi"
+              cpu: "512m"
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: RAY_APP_URL
+              value: "http://ray-gateway-service:38080/ray-app/api"
+            - name: CRATE_DATASOURCE_URL
+              value: crate://crate-internal-service:5432/
+            - name: SPRING_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: APPLICATION_DATASOURCE_POSTGRESQL_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: APPLICATION_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_URL
+              value: ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_BACKUP}${APPLICATION_NAME_BACKUP}
+            - name: SERVICE_DNS_NAME
+              value: ray-backup-service-headless.default.svc.cluster.local
+            - name: AWS_NAT_LOGS_BUCKET_NAME
+              value: raynatlogs-dev
+            - name: AWS_RADIUS_CDR_BUCKET_NAME
+              value: radius-cdr-dev
+            - name: AWS_ASSESS_KEY
+              value: 
+            - name: AWS_SECRET_KEY
+              value: 
+            - name: JDBC_CRATE_BACKUP_URL
+              value: ${CRATE_DATASOURCE_URL}${CRATE_STATISTICS_SCHEMA_NAME}
+            - name: SPRING_OUTPUT_ANSI_ENABLED
+              value: NEVER            
+            - name: _JAVA_OPTIONS
+              value: "-Xmx2276m -Xms1024m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin"
+          ports:
+            - containerPort: 38088

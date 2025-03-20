@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+    auth: cmF5bGlmZTokYXByMSRZcUtSU1Z6ciRONlVXRUZNYUNNNEJxeGpIRk1MbEMw
+kind: Secret
+metadata:
+    name: raylife-pushprox-auth
+type: Opaque

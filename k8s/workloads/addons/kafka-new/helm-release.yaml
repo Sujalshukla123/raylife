@@ -1,0 +1,91 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kafka-new
+  namespace: default
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: kafka
+      version: '29.3.13'
+      sourceRef:
+        kind: HelmRepository
+        name: kafka-new
+        namespace: default
+      interval: 1m
+  values: 
+    controller:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: physical_host 
+        whenUnsatisfiable: ScheduleAnyway  
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/component: controller
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/component: controller
+      replicaCount: 3
+      resources:
+        limits:
+          cpu: 1024m
+          memory: 8Gi
+        requests:
+          cpu: 512m
+          memory: 6Gi
+    broker:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: physical_host 
+        whenUnsatisfiable: ScheduleAnyway  
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/component: broker 
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway 
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/component: broker
+      persistence: 
+        size: 100Gi
+      replicaCount: 3
+      resources:
+        limits:
+          cpu: 1024m
+          memory: 8Gi
+        requests:
+          cpu: 512m
+          memory: 6Gi
+    sasl:
+      client: 
+        users:
+        - "admin"
+        passwords: "yJnF7ns9G4cjGHD"
+    heapOpts: -Xmx2500M -Xms2500M
+    extraConfigYaml:
+      auto.create.topics.enable: true
+      auto.leader.rebalance.enable: true
+      confluent.support.metrics.enable: false
+      default.replication.factor: "2"
+      delete.topic.enable: true
+      log.retention.hours: "24"
+      message.max.bytes: "20971520"
+      num.partitions: "6"
+      offsets.topic.replication.factor: "3"
+      authorizer.class.name: org.apache.kafka.metadata.authorizer.StandardAuthorizer
+      allow.everyone.if.no.acl.found: true
+      super.users: User:admin;User:kafka;User:schemaregistry;User:connect;User:controlcenter;User:controller_user;
+    metrics:
+      serviceMonitor:
+        enabled: true
+        namespace: "monitoring"
+      jmx:
+        enabled: true
+      prometheusRule:
+        enabled: true
+        namespace: "monitoring"

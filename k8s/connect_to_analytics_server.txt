@@ -1,0 +1,25 @@
+1. Login to AWS
+2. Open ec2.
+3. Check running instance "windows-server-sagar" if not running then start the instance.
+4. Click on the instance and get public Ip. ex. 3.111.31.37
+5. Open Remote Desktop Client ex.Remmina
+5. Create connection or connect the RDP by filling below details :
+	5.1 Protocol : RDP
+	5.2 Sever : 3.111.31.37
+	5.3 Username : Administrator
+	5.4 Password : o1*l1D;ekOjgq?)Ukax$lVQ7tnRFDIGV
+6. After login into the machine, search Big-IP Edge Client and open it
+7. Add VPN server Name if not exist 
+	7.1 Server Name : vpn-ggn.rcil.gov.in
+8. Then click on Connect button after that one dialog box will be appeared fill below details and logon.
+	8.1 Username : sagar.gulabani
+	8.2 Password : pCjyUqYxC.Q*pQ9JVwws
+9. Now open Putty and fill below details then connect
+	9.1 hostname : 172.27.63.173
+	9.2 port : 5522
+	9.3 connection type : ssh
+10. Add below details to login into analytics server :
+	10.1 username : Baiju
+	10.2 password : R@yl1fe!~#
+11. Sudo su
+12. To check certificate tls.crt and tls.key by executing command :  kubectl get secret rayprod-analytics-tls-cert -o yaml -n default

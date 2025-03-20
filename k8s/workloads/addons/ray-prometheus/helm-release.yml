@@ -1,0 +1,175 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: "66.2.2"
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus
+        namespace: monitoring
+  values:
+    namespaceOverride: monitoring
+    defaultRules:
+      create: true
+    alertmanager:
+      service:
+        type: NodePort
+        nodePort: 30902
+      enabled: true
+      alertmanagerSpec:
+        alertmanagerConfigSelector:
+          matchLabels:
+            release: alertmanager
+        storage:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: longhorn
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 30Gi
+        resources:
+          limits:
+            cpu: 100m
+            memory: 500Mi
+          requests:
+            cpu: 100m
+            memory: 400Mi
+      config:
+        receivers:
+        - name: prometheus-msteams
+          webhook_configs:
+          - url: "http://prometheus-msteams.monitoring:2000/alert"
+            send_resolved: true
+        global:
+          resolve_timeout: 5m
+        route:
+          repeat_interval: 12h
+          receiver: 'prometheus-msteams'
+          routes:
+          - receiver: 'prometheus-msteams'
+            matchers:
+              - alertname = "Watchdog"         
+        templates:
+        - '/etc/alertmanager/config/*.tmpl'
+    prometheus:
+      service: 
+        type: NodePort
+        nodePort: 30091
+      enabled: true
+      ingress:
+        enabled: false
+      prometheusSpec:
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
+        serviceMonitorNamespaceSelector:
+          matchExpressions:
+            - key: kubernetes.io/metadata.name
+              operator: In
+              values:
+                - monitoring
+                - default
+                - longhorn-system
+                - postgres
+        retention: 7d
+        resources:
+          limits:
+            cpu: 1600m
+            memory: 4.5Gi
+          requests:
+            cpu: 1300m
+            memory: 3Gi
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: longhorn
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 60Gi
+
+    prometheusOperator:
+      # image:
+      #   tag: v0.54.0
+      kubeletService:
+        enabled: false
+      resources:
+        limits:
+          cpu: 100m
+          memory: 300Mi
+        requests:
+          cpu: 100m
+          memory: 300Mi           
+    grafana:
+      defaultDashboardsEnabled: true
+      defaultDashboardsTimezone: "Asia/Kolkata"
+      persistence:
+        enabled: true
+        type: pvc
+        storageClassName: longhorn
+        accessModes:
+          - ReadWriteOnce
+        size: 4Gi
+      dashboards:
+        default:
+          PostgreSQL:
+            gnetId: 9628  
+            revision: 8
+            datasource: prometheus
+
+          SpringBoot:
+            gnetId: 6756 
+            revision: 2
+            datasource: prometheus
+
+          Kafka:
+           gnetId: 11962
+           revision: 4
+           datasource: prometheus
+  
+      sidecar:
+        dashboards:
+          # Sets if custom dashboards should be enabled
+          enabled: true
+          provider:
+            allowUiUpdates: true
+          label: grafana_dashboard
+        datasources:
+          enabled: true
+          defaultDatasourceEnabled: true
+      service:
+        type: NodePort
+        port: 3000
+        targetPort: 3000
+        portName: http-grafana
+      resources:
+        limits:
+          cpu: 100m
+          memory: 750Mi
+        requests:
+          cpu: 100m
+          memory: 500Mi
+      ingress:
+        enabled: false
+    prometheus-node-exporter:
+      resources:
+        limits:
+          cpu: 300m
+          memory: 300Mi
+        requests:
+          cpu: 200m
+          memory: 300Mi
+    kubeProxy:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+    kubeControllerManager:
+      enabled: false

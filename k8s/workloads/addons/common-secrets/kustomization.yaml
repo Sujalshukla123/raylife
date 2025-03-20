@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - docker.yaml
+  - docker-flux-system.yaml
+  - docker-postgres.yaml
+  - aws-secret.yaml
+  - aws-secret-postgres.yaml
+  - docker-analytics.yaml

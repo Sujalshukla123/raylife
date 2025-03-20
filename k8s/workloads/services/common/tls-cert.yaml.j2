@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rayprod-cert
+  namespace: default
+type: kubernetes.io/tls
+data:
+  tls.key: {{ tls_key }}
+  tls.crt: {{ tls_cert }}

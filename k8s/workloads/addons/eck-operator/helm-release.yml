@@ -1,0 +1,19 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: eck-operator
+  namespace: elastic-system
+spec:
+  install:
+    createNamespace: true
+  interval: 5m
+  # The chart.spec values are used by the helm-controller as a template to create a new HelmChart resource in the same namespace as the sourceRef. 
+  chart: 
+    spec:
+      chart: eck-operator
+      version: '2.14.0'
+      sourceRef:
+        kind: HelmRepository
+        name: elasticsearch
+        namespace: elastic-system
+      interval: 1m

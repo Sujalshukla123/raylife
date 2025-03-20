@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ripple-engine-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ripple-engine-service
+  template:
+    metadata:
+      labels:
+        app: ripple-engine-service
+    spec:
+      # nodeSelector:
+      #   ray.life/service: ripple-engine
+      priorityClassName: high-priority
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ripple-engine-service
+          image: truecomtelesoftindia/ripple-engine-service:8.0.0-SNAPSHOT-master-1680c82-392 # {"$imagepolicy": "default:ripple-engine-service"}
+          livenessProbe:
+            httpGet:
+              path: /management/health
+              port: 38102
+            initialDelaySeconds: 600
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /management/health
+              port: 38102
+            initialDelaySeconds: 300
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "256m"
+            limits:
+              memory: "3Gi"
+              cpu: "512m"
+          ports:
+            - containerPort: 38102
+          volumeMounts:
+            - mountPath: "/home/ubuntu/ripple-dev-1/"
+              name: ripple-volume
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: SPRING_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: APPLICATION_DATASOURCE_POSTGRESQL_PASSWORD
+              value: pa8Gz+cLfAT4Yn3
+            - name: APPLICATION_DATASOURCE_HOST
+              value: postgres-postgresql.postgres
+            - name: SPRING_DATASOURCE_URL
+              value: ${POSTGRES_DATASOURCE_URL}${SCHEMA_NAME_RIPPLE_ENGINE}${APPLICATION_NAME_RIPPLE_ENGINE}
+            - name: SERVICE_DNS_NAME
+              value: ripple-engine-service-headless.default.svc.cluster.local
+            - name: TEMPLATE_DIR
+              value: /home/ubuntu/ripple-dev-1/AWS-Pages
+            - name: CAPTIVE_BASE_URL
+              value: https://captivecloud.ray.life
+            - name: PORTAL_DIR
+              value: /home/ubuntu/ripple-dev-1/portals
+            - name: TEMPLATE_TEMP_DIR
+              value: /home/ubuntu/ripple-dev-1/tempDir
+            - name: TEMPLATE_CATEGORY_IMAGE_DIR
+              value: /home/ubuntu/ripple-dev-1/AWS-Pages
+            - name: TEMPLATE_SOCIAL_REDIRECT_URL
+              value: https://captivecloud.ray.life/portals
+            - name: SMS_GATEWAY_ADD_CREDIT_TO_WALLET
+              value: "false"
+            - name: SMS_ENABLE
+              value: "true"
+            - name: ENABLE_GET_NEXT_VOUCHER
+              value: "true"
+            - name: PDF_DOWNLOAD_THRESHOLD
+              value: "100"
+            - name: ZIP_DOWNLOAD_THRESHOLD
+              value: "300"
+            - name: MAX_VOUCHERS_THRESHOLD
+              value: "1000"
+            - name: MAX_LOGO_SIZE
+              value: "5000000"
+            - name: KAFKA_JAAS_ENABLED
+              value: "true"
+            - name: SMS_GATEWAY_PASSWORD
+              value: "hemal"
+            - name: ADDROLLS_API_URL
+              value: "http://www.scpsmsgt.com/adroll-truecom"
+            - name: VIDEO_AD_URL
+              value: "http://www.scpsmsgt.com/adroll-truecom/public/index.php/api/getVideoAds?"
+            - name: RANDOM_AD_URL
+              value: "http://www.scpsmsgt.com/adroll-truecom/public/index.php/api/getRandomAds?"
+            - name: FLUTTER_UG_PAYMENT_TYPE
+              value: "mobile_money_uganda"
+            - name: FLUTTER_SECRET_HASH
+              value: "32178910-fae9-4a9e-b0ed-399dc648d9e0"
+            - name: FLUTTER_VERIFY_BASE_URL
+              value: "https://api.flutterwave.com/v3/transactions/txRef/verify"
+            - name: _JAVA_OPTIONS
+              value: "-Xmx2764m -Xms2048m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin"
+            - name: FLUTTER_PAYMENT_BASE_URL
+              value: "https://api.flutterwave.com/v3/charges?type="
+            - name: KAFKA_USERNAME
+              value: "admin"
+            - name: KAFKA_PASSWORD
+              value: "yJnF7ns9G4cjGHD"
+      volumes:
+        - name: ripple-volume
+          persistentVolumeClaim:
+            claimName: ripple-volume

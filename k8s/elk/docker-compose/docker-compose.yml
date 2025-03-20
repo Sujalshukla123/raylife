@@ -1,0 +1,79 @@
+version: '3'
+services:
+  elasticsearch:
+    image: bitnami/elasticsearch:8.6.2
+    container_name: elasticsearch
+    restart: on-failure
+    environment:
+      - node.name=elasticsearch
+      - discovery.type=single-node
+      - ELASTICSEARCH_HEAP_SIZE=8000m
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - /data:/bitnami/elasticsearch/data
+    networks:
+      - elk
+
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:8.6.2
+    depends_on:
+      - elasticsearch
+    command: >
+      apm-server -e
+        -E apm-server.rum.enabled=true
+        -E apm-server.kibana.enabled=true
+        -E apm-server.kibana.host=kibana:5601
+        -E apm-server.elasticsearch.hosts=["http://elasticsearch:9200"]
+    ports:
+      - "8200:8200"
+    networks:
+      - elk
+
+
+  logstash:
+    image: elastic/logstash:8.6.2
+    container_name: logstash
+    restart: on-failure
+    volumes:
+    - ./logstash/:/config_dir
+      #    - ./log4j2.properties:/usr/share/logstash/config/log4j2.properties
+    command: logstash -f /config_dir/logstash.conf
+    environment:
+      LS_JAVA_OPTS: "-Xmx2g -Xms2g"
+    ports:
+      - "5000:5000"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: bitnami/kibana:8.6.2
+    container_name: kibana
+    restart: on-failure
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:8.6.2
+    container_name: metricbeat
+    volumes:
+    - ./metricbeat/metricbeat.config.yml:/usr/share/metricbeat/metricbeat.yml:ro
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - kibana
+
+networks:
+  elk:
+    driver: bridge
+

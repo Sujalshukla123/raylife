@@ -1,0 +1,15 @@
+{% raw %}
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: first-pool
+  namespace: metallb
+spec:
+  addresses:
+  {% endraw %}
+    {% for host in groups['control-plane'] %}
+    - {{ hostvars[host].ansible_host }}/32
+    {% endfor %}
+  {% raw %}
+  autoAssign: false
+  {% endraw %}

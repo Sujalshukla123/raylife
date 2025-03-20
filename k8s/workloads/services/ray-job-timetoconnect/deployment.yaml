@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-job-timetoconnect
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: ray-job-timetoconnect
+  template:
+    metadata:
+      labels:
+        app: ray-job-timetoconnect
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: ray-job-timetoconnect
+        image: truecomtelesoftindia/ray-flink-jobs:8.0.13-SNAPSHOT
+        envFrom:
+        - configMapRef:
+            name: common-cm
+        env: 
+        - name: JOB_MANAGER_RPC_ADDRESS
+          value: flink-jobmanager
+        command: flink run -m flink-jobmanager:8081 -c com.truecom.flink.job.TimeToConnectJob /opt/flink/raycloud/app.jar --inputTopic timeToConnect.input --outputTopic timeToConnect.output --groupId timeToConnectGroup --bootstrapServers ${KAFKA_URL} --username admin --password ${KAFKA_PASSWORD} --securityProtocol SASL_PLAINTEXT --checkpointDir file:///var/raycloud/checkpoint/timeToConnect --sessionTimeout 10000

@@ -1,0 +1,433 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: common
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./workloads/services/common
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-hub-service
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: longhorn
+    - name: postgres-new
+    - name: ray-controller-schema
+
+  interval: 10m0s
+  path: ./workloads/services/ray-hub-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-gateway-service
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: crate
+    - name: kafka-new
+    - name: postgres-new
+    - name: ray-controller-schema
+  interval: 10m0s
+  path: ./workloads/services/ray-gateway-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-controller-dashboard
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+  interval: 10m0s
+  path: ./workloads/services/ray-controller-dashboard
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-hub-dashboard
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+  interval: 10m0s
+  path: ./workloads/services/ray-hub-dashboard
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-dashboard-service
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: longhorn
+    - name: kafka-new
+    - name: postgres-new
+    - name: crate
+    - name: ray-controller-schema
+
+  interval: 10m0s
+  path: ./workloads/services/ray-dashboard-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-job-service
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: postgres-new
+    - name: ray-controller-schema
+  interval: 10m0s
+  path: ./workloads/services/ray-job-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-statistics-service
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: crate
+    - name: postgres-new 
+    - name: ray-controller-schema
+  interval: 10m0s
+  path: ./workloads/services/ray-statistics-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-notification-service
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: kafka-new
+    - name: postgres-new
+    - name: ray-controller-schema
+  interval: 10m0s
+  path: ./workloads/services/ray-notification-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: pgadmin
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  dependsOn:
+    - name: longhorn
+  path: ./workloads/services/pgadmin
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ripple-nginx
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./workloads/services/ripple-nginx
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ripple-engine-service
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  dependsOn:
+    - name: longhorn
+    - name: kafka-new
+    - name: ray-controller-schema
+  path: ./workloads/services/ripple-engine-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-radius-service
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: postgres-new
+    - name: crate
+    - name: ray-controller-schema
+  interval: 10m0s
+  path: ./workloads/services/ray-radius-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+# # apiVersion: kustomize.toolkit.fluxcd.io/v1
+# # kind: Kustomization
+# # metadata:
+# #   name: ray-batch-service
+# #   namespace: flux-system
+# # spec:
+# #   dependsOn:
+# #   - name: common
+# #   interval: 10m0s
+# #   path: ./workloads/services/ray-batch-service
+# #   prune: true
+# #   sourceRef:
+# #     kind: GitRepository
+# #     name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-backup-service
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: kafka-new
+    - name: postgres-new
+    - name: crate
+    - name: ray-controller-schema
+  interval: 10m0s
+  path: ./workloads/services/ray-backup-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-vendor-service
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: kafka-new
+    - name: postgres-new
+    - name: ray-controller-schema
+  interval: 10m0s
+  path: ./workloads/services/ray-vendor-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-reports-service
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: longhorn
+    - name: kafka-new
+    - name: postgres-new
+    - name: ray-controller-schema
+  interval: 10m0s
+  path: ./workloads/services/ray-reports-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-mqtt-proxy
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: kafka-new
+  interval: 10m0s
+  path: ./workloads/services/ray-mqtt-proxy
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-jsreports-service
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  dependsOn:
+    - name: common
+    - name: longhorn
+
+  path: ./workloads/services/ray-jsreports-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---  
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-audit-service
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: kafka-new
+    - name: postgres-new
+    - name: crate
+    - name: ray-controller-schema
+  interval: 10m0s
+  path: ./workloads/services/ray-audit-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+# # apiVersion: kustomize.toolkit.fluxcd.io/v1
+# # kind: Kustomization
+# # metadata:
+# #   name: ray-lighthouse-service
+# #   namespace: flux-system
+# # spec:
+# #   dependsOn:
+# #   - name: common
+# #   interval: 10m0s
+# #   path: ./workloads/services/ray-lighthouse-service
+# #   prune: true
+# #   sourceRef:
+# #     kind: GitRepository
+# #     name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-controller-service
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: common
+    - name: longhorn
+    - name: kafka-new
+    - name: postgres-new
+    - name: ray-controller-schema
+  interval: 10m0s
+  path: ./workloads/services/ray-controller-service
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ray-controller-schema
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  dependsOn:
+    - name: postgres-new
+
+  path: ./workloads/services/ray-controller-schema
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: service-monitor
+#   namespace: flux-system
+# spec:
+#   interval: 10m0s
+#   path: ./workloads/services/service-monitor
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: image-automation
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./workloads/services/image-automation
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+# # apiVersion: kustomize.toolkit.fluxcd.io/v1
+# # kind: Kustomization
+# # metadata:
+# #   name: test-nginx-1
+# #   namespace: flux-system
+# # spec:
+# #   interval: 10m0s
+# #   path: ./workloads/services/test-nginx-1
+# #   prune: true
+# #   sourceRef:
+# #     kind: GitRepository
+# #     name: flux-system
+# #   dependsOn:
+# #   - name: test-nginx
+

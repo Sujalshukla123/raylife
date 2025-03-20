@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  ray-hub-dashboard-cm
+data:
+  environment.json: |
+    {
+      "production": true,
+      "apiURL": "{{ 'https' if ssl else 'http' }}://hubcloud.{{ domain_name }}",
+      "baseAPI": "/ray-hub-service/api"
+    }

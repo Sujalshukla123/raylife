@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: metallb
+resources:
+  - helm-release.yaml
+  - helm-repo.yaml
+  # - configmap.yaml
+  # metallb installed manually using kubectl command version 0.13.2

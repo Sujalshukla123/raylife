@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ray-notification-service-headless
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: ray-notification-service
+  ports:
+  - name: hazelcast
+    port: 5701

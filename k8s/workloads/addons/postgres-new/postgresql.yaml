@@ -1,0 +1,43 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: postgres-postgresql
+  labels:
+    recurring-job.longhorn.io/source: enabled
+    recurring-job.longhorn.io/recurring-postgres-backups: enabled
+spec:
+
+  # enableLogicalBackup: true
+  teamId: "postgres"
+  numberOfInstances: 3
+  users:
+    zalando:  # database owner
+    - superuser
+    - createdb  # role for application foo
+  databases:
+    zalando: zalando  # dbname: owner
+  postgresql:
+    version: "16"
+    parameters:
+      max_connections: "1000"
+      pg_stat_statements.max: "10000"
+      pg_stat_statements.track: all
+
+  patroni:
+    pg_hba: 
+      - local all all md5
+      - host all all 0.0.0.0/0 md5
+      - host replication standby 10.250.0.0/16 md5
+      - local replication standby md5
+  podPriorityClassName: "high-priority"
+
+  volume:
+    size: 100Gi
+  resources:
+    requests:
+      cpu: "2"
+      memory: 18Gi
+
+    limits:
+      cpu: "3"
+      memory: 24Gi

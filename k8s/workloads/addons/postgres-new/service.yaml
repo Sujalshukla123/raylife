@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-postgresql-nodeport
+spec:
+  type: NodePort
+  selector:
+    spilo-role: master
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+      nodePort: 30003

@@ -1,0 +1,18 @@
+{{- if and .Values.jaas.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cp-zookeeper.fullname" . }}-jaas-configmap
+  labels:
+    app: {{ template "cp-zookeeper.name" . }}
+    chart: {{ template "cp-zookeeper.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  zookeeper.sasl.jaas.config: |+
+    Server {
+    org.apache.zookeeper.server.auth.DigestLoginModule required
+       user_super="{{ .Values.jaas.username }}"
+       user_admin="{{ .Values.jaas.password }}";
+    };
+{{- end }}

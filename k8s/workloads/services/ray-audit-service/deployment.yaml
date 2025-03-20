@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-audit-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ray-audit-service
+  template:
+    metadata:
+      labels:
+        app: ray-audit-service
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: ray-audit-service
+          image: truecomtelesoftindia/ray-audit-service:1.0.0-SNAPSHOT-master-1a3cb84-223 # {"$imagepolicy": "default:ray-audit-service"}
+          livenessProbe:
+            httpGet:
+              path: /management/health
+              port: 38085
+            initialDelaySeconds: 600
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /management/health
+              port: 38085
+            initialDelaySeconds: 300
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "12Gi"
+              cpu: "512m"
+            limits:
+              memory: "18Gi"
+              cpu: "512m"
+          envFrom:
+            - configMapRef:
+                name: common-cm
+          env:
+            - name: SERVICE_DNS_NAME
+              value: ray-audit-service-headless.default.svc.cluster.local
+            - name: JDBC_URL
+              value: ${CRATE_DATASOURCE_URL}${CRATE_AUDIT_SCHEMA_NAME}
+            - name: _JAVA_OPTIONS
+              value: "-Xmx6734m -Xms3072m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=1 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/heapdump.bin"
+            - name: POOL_SIZE
+              value: "100"
+            - name: CONNECTION_TIMEOUT
+              value: "110000"
+            - name: HELP_DESK_TICKETS_ALLOWED_ACCOUNT_CLUSTERS
+              value: 388de953-21f5-4901-9535-086f15e66ccb
+          ports:
+            - containerPort: 38085

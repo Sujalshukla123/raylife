@@ -1,0 +1,170 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: crate
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: crate
+  serviceName: crate-set
+  template:
+    metadata:
+      labels:
+        app: crate
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: physical_host 
+          whenUnsatisfiable: ScheduleAnyway  
+          labelSelector:
+            matchLabels:
+              app: crate 
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway  
+          labelSelector:
+            matchLabels:
+              app: crate 
+      priorityClassName: high-priority
+      containers:
+      - command:
+        - /docker-entrypoint.sh
+        - -Ccluster.name=${CLUSTER_NAME}
+        - -Cnode.name=${HOSTNAME}
+        - -Ccluster.initial_master_nodes=crate-0
+        - -Cdiscovery.seed_providers=srv
+        - -Cdiscovery.srv.query=_crate-internal._tcp.crate-internal-service.${NAMESPACE}.svc.cluster.local
+        - -Cgateway.recover_after_nodes=2
+        - -Cgateway.recover_after_time=240
+        - -Cgateway.expected_nodes=${EXPECTED_NODES}
+        - -Cpath.data=/data
+        lifecycle:
+          postStart:
+            exec:
+              command: 
+                - "/bin/sh"
+                - "-c"
+                - |
+                  (sleep 120 && \
+                  if ! crash -c "SELECT * FROM sys.repositories WHERE name = '$SNAPSHOT_REPO';" | grep '$SNAPSHOT_REPO'; then \
+                    crash -c "CREATE REPOSITORY $SNAPSHOT_REPO TYPE s3 WITH (bucket = '$CRATE_BUCKET_NAME', access_key = '$AWS_ACCESS_KEY_ID', secret_key = '$AWS_SECRET_ACCESS_KEY', endpoint = 's3.amazonaws.com', base_path='crate-backup/');" ;\
+                  else \
+                    echo "Repository $SNAPSHOT_REPO already exists." ;\
+                  fi) &
+
+        env:
+        - name: CRATE_BUCKET_NAME
+          value: "crate-backup-for-cronjob"
+        - name: CRATEDB_HOST
+          value: "crate-internal-service.default.svc.cluster.local"
+        - name: SNAPSHOT_REPO
+          value: "crate_s3_repo"
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: AWS_SECRET_ACCESS_KEY
+        - name: AWS_REGION
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: AWS_REGION
+        - name: CRATE_HEAP_SIZE
+          value: 8120m
+        - name: EXPECTED_NODES
+          value: "3"
+        - name: CLUSTER_NAME
+          value: ray-crate
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        image: crate:4.8
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /static/conf/plugins.json
+            port: 4200
+            scheme: HTTP
+          initialDelaySeconds: 25
+          periodSeconds: 25
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: crate
+        ports:
+        - containerPort: 4300
+          name: crate-internal
+          protocol: TCP
+        - containerPort: 4200
+          name: crate-web
+          protocol: TCP
+        - containerPort: 5432
+          name: postgres
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /static/conf/plugins.json
+            port: 4200
+            scheme: HTTP
+          initialDelaySeconds: 25
+          periodSeconds: 25
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 512m
+            memory: 8Gi
+          requests:
+            cpu: 512m
+            memory: 6Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data
+          name: data
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: regcred
+      initContainers:
+      - command:
+        - sysctl
+        - -w
+        - vm.max_map_count=262144
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        name: init-sysctl
+        resources: {}
+        securityContext:
+          privileged: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 61
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Gi
+      volumeMode: Filesystem
+

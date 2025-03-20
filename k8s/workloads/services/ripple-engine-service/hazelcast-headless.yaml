@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ripple-engine-service-headless
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: ripple-engine-service
+  ports:
+  - name: hazelcast
+    port: 5701

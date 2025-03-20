@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aws-s3-secret
+type: Opaque
+data:
+  AWS_ACCESS_KEY_ID: WGxFQU0yM1FEem9EVU5SWjduZkQ=
+  AWS_SECRET_ACCESS_KEY: Q3hwWlFuczR1RWl5dEpvZk1rU2NJbm51NlR6UjJQZmVzdG4wWElLZg==
+  AWS_ENDPOINTS: aHR0cDovLzEzLjIzNS42Ny4yMTk6OTAwMC8=

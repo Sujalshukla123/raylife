@@ -1,0 +1,34 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: longhorn
+  namespace: longhorn-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: longhorn
+      version: '1.7.2'
+      sourceRef:
+        kind: HelmRepository
+        name: longhorn
+        namespace: longhorn-system
+      interval: 1m
+
+  values:
+    service:
+      ui:
+        type: NodePort
+        nodePort: 30730
+    persistence: 
+      defaultClassReplicaCount: {{ defaultClassReplicaCount }}
+      reclaimPolicy: {{ reclaimPolicy }}
+    defaultSettings:
+      defaultReplicaCount: {{ defaultClassReplicaCount }}
+      defaultDataPath: {{ mount_path }}
+      backupTarget: {{ backupTarget }}
+      backupTargetCredentialSecret: aws-s3-secret
+      storageReservedPercentageForDefaultDisk: {{storageReservedPercentage}}
+    metrics:
+      serviceMonitor:
+        enabled: true

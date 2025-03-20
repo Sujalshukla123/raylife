@@ -1,0 +1,33 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: cluster-autoscaler
+  namespace: kube-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: cluster-autoscaler
+      version: '9.19.2'
+      sourceRef:
+        kind: HelmRepository
+        name: cluster-autoscaler
+        namespace: kube-system
+      interval: 1m
+  values:
+    awsRegion: ap-south-1
+    autoDiscovery:
+      clusterName: Ray-Prod-Cluster
+    rbac:
+      serviceAccount:
+        annotations:
+          eks.amazonaws.com/role-arn: "arn:aws:iam::582395889164:role/irsa-ap-south-1-Ray-Prod-Cluster-cluster-autoscaler"
+    fullnameOverride: cluster-autoscaler
+    priorityClassName: high-priority
+    resources:
+      limits:
+        cpu: 100m
+        memory: 600Mi
+      requests:
+        cpu: 100m
+        memory: 600Mi

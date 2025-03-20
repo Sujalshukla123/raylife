@@ -1,0 +1,9 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+    name: ray-audit-service
+spec:
+  image: truecomtelesoftindia/ray-audit-service
+  interval: 1m0s
+  secretRef:
+    name: regcred

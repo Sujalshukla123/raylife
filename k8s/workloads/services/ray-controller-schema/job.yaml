@@ -1,0 +1,65 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ray-controller-schema
+  namespace: postgres
+spec:
+
+  template:
+    metadata:
+      labels:
+        app: ray-controller-schema
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      initContainers:
+        - name: init-schema
+          image: postgres:16
+          command:
+            - "sh"
+            - "-c"
+            - |
+              psql -h $POSTGRES_HOST -U postgres <<-EOSQL
+                CREATE DATABASE "RayApp";
+                CREATE USER "RayApp" WITH PASSWORD 'pa8Gz+cLfAT4Yn3';
+                ALTER USER "RayApp" WITH SUPERUSER;
+                GRANT ALL PRIVILEGES ON DATABASE "RayApp" TO "RayApp";
+                ALTER DATABASE "RayApp" OWNER TO "RayApp";
+                CREATE USER backup_user SUPERUSER  password '#B8vLq9zNp$6u@';
+                ALTER USER backup_user set default_transaction_read_only = on;
+              EOSQL
+            - |
+              psql -h $POSTGRES_HOST -U postgres -d RayApp <<-EOSQL
+                CREATE EXTENSION "uuid-ossp" SCHEMA public;
+              EOSQL
+          ports:
+            - containerPort: 80
+          env:
+            - name: POSTGRES_HOST
+              value: postgres-postgresql.postgres
+            - name: POSTGRES_USER
+              value: RayApp
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres.postgres-postgresql.credentials.postgresql.acid.zalan.do
+                  key: password
+
+
+      containers:
+      
+        - name: ray-controller-schema
+          image: truecomtelesoftindia/ray-controller-schema:8.0.1
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres-postgresql.postgres:5432/RayApp?currentSchema=controller&ApplicationName=controller
+              # jdbc:postgresql://<host>:<port>/<database>?<parameter1>&<parameter2>
+            - name: POSTGRES_HOST
+              value: postgres-postgresql.postgres
+            - name: POSTGRES_USER
+              value: RayApp
+            - name: PGPASSWORD
+              value: "pa8Gz+cLfAT4Yn3"
+          ports:
+            - containerPort: 80
+      restartPolicy: Never

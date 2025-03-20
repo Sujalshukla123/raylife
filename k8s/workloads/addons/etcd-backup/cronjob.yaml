@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etcd-backup
+spec:
+  schedule: "*/15 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: Exists
+          tolerations:
+          - key: "node-role.kubernetes.io/control-plane"
+            operator: "Exists"
+            effect: "NoSchedule"
+          restartPolicy: OnFailure
+          imagePullSecrets:
+          - name: regcred
+          containers:
+          - name: etcd-backup
+            image: truecomtelesoftindia/etcd-backup:1.0
+            imagePullPolicy: Always
+            args: ["/home/ubuntu/etcd-backup/backup.sh"]
+            env:
+            - name: BUCKET_NAME
+              value: rayprod-new-etcd-cluster-backup
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+
+            - name: STORAGE_TYPE
+              value: aws
+            
+
+
+            volumeMounts:
+              - mountPath: /etc/kubernetes/pki/etcd
+                name: etcd-certs
+                readOnly: true
+            envFrom:
+              - secretRef:
+                  name: aws-credentials
+          volumes:
+          - name: etcd-certs
+            hostPath:
+              path: /etc/kubernetes/pki/etcd
+          
+

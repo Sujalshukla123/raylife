@@ -1,0 +1,27 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: metrics-server
+  namespace: kube-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: metrics-server
+      version: '3.12.1'
+      sourceRef:
+        kind: HelmRepository
+        name: metrics-server
+        namespace: kube-system
+      interval: 1m
+  values:
+    args: 
+    - --kubelet-insecure-tls
+    priorityClassName: high-priority
+    resources:
+      limits:
+        cpu: 100m
+        memory: 300Mi
+      requests:
+        cpu: 100m
+        memory: 300Mi

@@ -1,0 +1,9 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+    name: ray-vendor-service
+spec:
+  image: truecomtelesoftindia/ray-vendor-service
+  interval: 1m0s
+  secretRef:
+    name: regcred

@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: default
+resources:
+  # - old-helm-release.yaml
+  - configmap.yaml
+  # - helm-repo.yaml
+  - helm-chart.yaml
+  - helm-release.yaml
+  - service-1.yaml
+  - service-2.yaml
+  - service-3.yaml

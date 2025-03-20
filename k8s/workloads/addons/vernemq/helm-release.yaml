@@ -1,0 +1,140 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: vernemq
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: ./charts/vernemq
+      version: '2.0.1'
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+      interval: 1m
+  values:
+    podAntiAffinity: hard
+    podAntiAffinityTopologyKey: "physical_host"
+          
+    # postStartHook: ["/bin/sh", "-c", "sleep 20 && vmq-admin api-key add key=raymqttkey"]
+    statefulset:
+      lifecycle:
+        postStart:
+          exec:
+            command: ["/bin/sh", "-c", "echo 'Starting postStartHook' && sleep 20 && vmq-admin api-key add key=raymqttkey && echo 'postStartHook completed'"]
+
+    additionalEnv:
+    - name: DOCKER_VERNEMQ_ALLOW_REGISTER_DURING_NETSPLIT
+      value: "on"
+    - name: DOCKER_VERNEMQ_ALLOW_PUBLISH_DURING_NETSPLIT
+      value: "on"
+    - name: DOCKER_VERNEMQ_ALLOW_SUBSCRIBE_DURING_NETSPLIT
+      value: "on"
+    - name: DOCKER_VERNEMQ_ALLOW_UNSUBSCRIBE_DURING_NETSPLIT
+      value: "on"
+    - name: DOCKER_VERNEMQ_ACCEPT_EULA
+      value: "yes"
+    - name: DOCKER_VERNEMQ_ALLOW_ANONYMOUS
+      value: "on"
+    - name: DOCKER_VERNEMQ_MAX_CLIENT_ID_SIZE
+      value: "120"
+    - name: DOCKER_VERNEMQ_listener.tcp.proxylistener
+      value: 0.0.0.0:1884
+    - name: DOCKER_VERNEMQ_listener.tcp.proxylistener.proxy_protocol
+      value: "on"
+    - name: DOCKER_VERNEMQ_listener.tcp.proxylistener.proxy_protocol_use_cn_as_username
+      value: "on"
+    - name: DOCKER_VERNEMQ_listener.max_connections
+      value: "50000"
+    - name: DOCKER_VERNEMQ_listener.nr_of_acceptors
+      value: "1000"
+    - name: DOCKER_VERNEMQ_USER_admin
+      value: +7+xmd6zTA.6ync
+    - name: DOCKER_VERNEMQ_USER_websocketuser
+      value: wbcGH+2qTEe.78U
+    - name: DOCKER_VERNEMQ_PLUGINS__VMQ_PASSWD
+      value: "on"
+    - name: DOCKER_VERNEMQ_PLUGINS__VMQ_ACL
+      value: "on"
+    - name: DOCKER_VERNEMQ_PLUGINS__VMQ_WEBHOOKS
+      value: "on"
+    - name: DOCKER_VERNEMQ_metadata_plugin
+      value: vmq_swc
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS__POOL_timeout
+      value: "6000"
+    - name: DOCKER_VERNEMQ_LOG__CONSOLE
+      value: console
+    - name: DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL
+      value: debug
+    - name: DOCKER_VERNEMQ_vmq_acl.acl_reload_interval
+      value: "10"
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS.hook1.hook
+      value: on_client_wakeup
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS.hook1.endpoint
+      value: http://ray-gateway-service:38080/ray-app/api/mqtts/clients/onClientWakeup
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS.hook2.hook
+      value: on_client_gone
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS.hook2.endpoint
+      value: http://ray-gateway-service:38080/ray-app/api/mqtts/clients/onClientGone
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS.hook3.hook
+      value: auth_on_subscribe
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS.hook3.endpoint
+      value: http://ray-gateway-service:38080/ray-app/api/mqtts/clients/authOnSubscribe
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS.hook4.hook
+      value: on_subscribe
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS.hook4.endpoint
+      value: http://ray-gateway-service:38080/ray-app/api/mqtts/clients/onSubscribe
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS.hook5.hook
+      value: on_unsubscribe
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS.hook5.endpoint
+      value: http://ray-gateway-service:38080/ray-app/api/mqtts/clients/onUnSubscribe
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS.hook6.hook
+      value: auth_on_publish
+    - name: DOCKER_VERNEMQ_VMQ_WEBHOOKS.hook6.endpoint
+      value: http://ray-gateway-service:38080/ray-app/api/mqtts/clients/authOnPublish
+    - name: DOCKER_VERNEMQ_VMQ_ACL__ACL_FILE
+      value: /home/vmq.acl
+    - name: DOCKER_VERNEMQ_http_module.vmq_http_mgmt_api.auth.mode
+      value: noauth
+    - name: DOCKER_VERNEMQ_DISCOVERY_KUBERNETES
+      value: "1"
+    extraVolumes:
+      - name: vernemq-config
+        configMap:
+          name: vernemq-config
+    extraVolumeMounts:
+      - name: vernemq-config
+        mountPath: /home/vmq.acl
+        subPath: vmq.acl
+
+    fullnameOverride: ray-mqtt-prod
+    replicaCount: 3
+    resources:
+      limits:
+        cpu: 2
+        memory: 6Gi
+      requests:
+        cpu: 1.3
+        memory: 4Gi
+    secretMounts: []
+    service:
+      mqtt:
+        enabled: true
+        port: 1883
+        nodePort: 30000
+      mqtts:
+        enabled: true
+        port: 1884
+        nodePort: 30001
+      type: NodePort
+      api:
+        enabled: true
+        port: 80
+        type: NodePort
+        nodePort: 32093
+#      ws:
+#        enabled: true
+#        nodePort: 8080
+#        port: 8080
+    

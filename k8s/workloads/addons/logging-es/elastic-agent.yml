@@ -1,0 +1,47 @@
+apiVersion: agent.k8s.elastic.co/v1alpha1
+kind: Agent
+metadata:
+  name: elastic-agent
+  namespace: elastic-system
+spec:
+  version: 8.15.0
+  kibanaRef:
+    name: log-kibana
+  fleetServerRef:
+    name: fleet-server
+  mode: fleet
+  policyID: eck-agent
+  daemonSet:
+    podTemplate:
+      spec:
+        serviceAccountName: elastic-agent
+        automountServiceAccountToken: true
+        securityContext:
+          runAsUser: 0
+        priorityClassName: high-priority
+        containers:
+        - name: agent
+          resources:
+            requests:
+              memory: 1.2Gi
+              cpu: 300m
+            limits:
+              memory: 1.5Gi
+              cpu: 800m
+          volumeMounts:
+          - mountPath: /var/lib/docker/containers
+            name: varlibdockercontainers
+          - mountPath: /var/log/containers
+            name: varlogcontainers
+          - mountPath: /var/log/pods
+            name: varlogpods
+        volumes:
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: varlogcontainers
+          hostPath:
+            path: /var/log/containers
+        - name: varlogpods
+          hostPath:
+            path: /var/log/pods
