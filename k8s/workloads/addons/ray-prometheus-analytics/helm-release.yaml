@@ -46,7 +46,7 @@ spec:
           - name: webhook
             webhook_configs:
               - send_resolved: true
-                url: https://captivecloud.ray.internal/ripple/eks/webhook1
+                url: https://captivecloud.ray.life/ripple/eks/webhook1
         route:
           receiver: webhook
           repeat_interval: 12h
@@ -101,7 +101,7 @@ spec:
           kubernetes.io/ingress.class: nginx
         enabled: true
         hosts:
-          - analytics.ray.internal
+          - analytics.ray.life
         ingressClassName: nginx        
       persistence:
         accessModes:

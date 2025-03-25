@@ -9,7 +9,7 @@ metadata:
 spec:
     ingressClassName: "nginx"
     rules:
-        - host: pushprox.ray.internal
+        - host: "pushprox.ray.life"
           http:
               paths:
                   - path: "/"

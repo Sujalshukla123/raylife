@@ -11,7 +11,7 @@ spec:
   git:
     checkout:
       ref:
-        branch: kotak
+        branch: new2
   
     commit:
       author:

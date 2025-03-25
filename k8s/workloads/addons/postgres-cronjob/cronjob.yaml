@@ -16,7 +16,12 @@ spec:
             image: truecomtelesoftindia/postgres-cronjob:latest  # Replace with your Docker image name
             command: ["/bin/sh", "-c", "/app/backup.sh"]
             imagePullPolicy: Always 
+            envFrom: 
+            - secretRef:
+                name: aws-credentials
             env:
+            - name: STORAGE_TYPE
+              value: xyz
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
@@ -33,7 +38,7 @@ spec:
                   name: aws-credentials
                   key: AWS_REGION
             - name: S3_BUCKET
-              value: "s3://longhorn"
+              value: s3://sujal-test-dump
             - name: DB_USER
               value: backup_user
             - name: DB_NAME

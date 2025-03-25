@@ -7,16 +7,15 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
 spec:
   ingressClassName: nginx
-  # TLS configuration is disabled
-  # tls:
-  # - hosts:
-  #   - cloud.ray.internal
-  #   - captivecloud.ray.internal
-  #   - gatewaycloud.ray.internal
-  #   - hubcloud.ray.internal
-  #   secretName: rayprod-cert
+  tls:
+  - hosts:
+    - cloud.ray.life
+    - captivecloud.ray.life
+    - gatewaycloud.ray.life
+    - hubcloud.ray.life
+    secretName: rayprod-cert
   rules:
-    - host: cloud.ray.internal
+    - host: cloud.ray.life
       http:
         paths:
           - backend:
@@ -25,7 +24,7 @@ spec:
                 port:
                   number: 80
             pathType: ImplementationSpecific
-    - host: captivecloud.ray.internal
+    - host: captivecloud.ray.life
       http:
         paths:
           - backend:
@@ -34,7 +33,7 @@ spec:
                 port:
                   number: 80
             pathType: ImplementationSpecific
-    - host: gatewaycloud.ray.internal
+    - host: gatewaycloud.ray.life
       http:
         paths:
           - backend:
@@ -43,7 +42,7 @@ spec:
                 port:
                   number: 38080
             pathType: ImplementationSpecific
-    - host: jsreport.ray.internal
+    - host: jsreport.ray.life
       http:
         paths:
           - backend:
@@ -52,7 +51,7 @@ spec:
                 port:
                   number: 5488
             pathType: ImplementationSpecific
-    - host: hubcloud.ray.internal
+    - host: hubcloud.ray.life
       http:
         paths:
           - path: /ray-hub-service

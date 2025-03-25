@@ -6,9 +6,9 @@ data:
   environment.json: |
     {
       "production": true,
-      "apiURL": "https://gatewaycloud.ray.internal",
-      "hubApiURL": "https://hubcloud.ray.internal/ray-hub-service",
-      "analyticsURL": "https://analytics.ray.internal",
+      "apiURL": "https://gatewaycloud.ray.life",
+      "hubApiURL": "https://hubcloud.ray.life/ray-hub-service",
+      "analyticsURL": "https://analytics.ray.life",
       "baseAPI": "/api",
       "rayApi": "/ray-app",
       "jobApi": "/ray-job",

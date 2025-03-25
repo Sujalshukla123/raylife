@@ -6,6 +6,6 @@ data:
   environment.json: |
     {
       "production": true,
-      "apiURL": "https://hubcloud.ray.internal",
+      "apiURL": "https://hubcloud.ray.life",
       "baseAPI": "/ray-hub-service/api"
     }
