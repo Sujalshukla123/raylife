@@ -8,10 +8,10 @@ metadata:
 spec:
   interval: 1m0s
   ref:
-    branch: new2
+    branch: on-prem-base-template
   secretRef:
     name: flux-system
-  url: https://github.com/Sujalshukla123/raylife.git
+  url: https://bitbucket.org/raywifi/k8s.git
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
