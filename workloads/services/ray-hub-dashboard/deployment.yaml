@@ -20,7 +20,7 @@ spec:
       - name: regcred
       containers:
       - name: ray-hub-dashboard
-        image: truecomtelesoftindia/ray-hub-dashboard:8.0.0-SNAPSHOT-master-4ca065c-8 # {"$imagepolicy": "default:ray-hub-dashboard"}
+        image: truecomtelesoftindia/ray-hub-dashboard:8.0.0-SNAPSHOT-master-4ca065c-12 # {"$imagepolicy": "default:ray-hub-dashboard"}
         livenessProbe:
           httpGet:
             path: /

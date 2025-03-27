@@ -16,7 +16,7 @@ spec:
         - name: regcred
       containers:
         - name: ray-reports-service
-          image: truecomtelesoftindia/ray-reports-service:8.0.0-SNAPSHOT-master-b72bb5b-354 # {"$imagepolicy": "default:ray-reports-service"}
+          image: truecomtelesoftindia/ray-reports-service:8.0.0-SNAPSHOT-master-787437b-357 # {"$imagepolicy": "default:ray-reports-service"}
           livenessProbe:
             httpGet:
               path: /management/health
@@ -45,7 +45,7 @@ spec:
                 name: common-cm
           env:
             - name: AWS_SECRET_ACCESS_KEY
-              value: 
+              value:
             - name: AWS_ACCESS_KEY_ID
               value: YGMJVKUBZB
             - name: ENABLE_EUREKA
@@ -68,7 +68,7 @@ spec:
             - name: BATCH_PARTITION_SIZE
               value: "50"
             - name: BATCH_GENERATION_DELAY
-              value: "3000"           
+              value: "3000"
             - name: AWS_VOUCHERS_BUCKET_NAME
               value: "ray-vouchers-prod"
             - name: BATCH_LOCAL_STORE_PATH

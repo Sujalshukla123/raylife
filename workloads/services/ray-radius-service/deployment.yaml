@@ -16,7 +16,7 @@ spec:
         - name: regcred
       containers:
         - name: ray-radius-service
-          image: truecomtelesoftindia/ray-radius-service:8.0.2-SNAPSHOT-master-a92a280-274 # {"$imagepolicy": "default:ray-radius-service"}
+          image: truecomtelesoftindia/ray-radius-service:8.0.2-SNAPSHOT-master-fc27656-285 # {"$imagepolicy": "default:ray-radius-service"}
           envFrom:
             - configMapRef:
                 name: common-cm
