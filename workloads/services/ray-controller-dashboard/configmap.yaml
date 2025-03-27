@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  ray-controller-dashboard-cm
+data:
+  environment.json: |
+    {
+      "production": true,
+      "apiURL": "https://gatewaycloud.ray.life",
+      "hubApiURL": "https://hubcloud.ray.life/ray-hub-service",
+      "analyticsURL": "https://analytics.ray.life",
+      "baseAPI": "/api",
+      "rayApi": "/ray-app",
+      "jobApi": "/ray-job",
+      "eventApi": "/ray-event",
+      "statisticsAPI": "/ray-stats",
+      "dashboardAPI": "/ray-dashboard",
+      "rippleEngineAPI": "/ripple-engine",
+      "fileZuulByPassApi": "/zuul",
+      "rayDashboardBaseApi": "/ray-dashboard",
+      "notificationBaseAPI": "/ray-notification",
+      "radiusBaseAPI": "/ray-radius",
+      "ray3pBaseAPI": "/ray-vendor",    
+      "rayReport": "/ray-reports",
+      "rayBackup": "/ray-backup",
+      "rayAudit": "/ray-audit",
+      "rayBatch": "/ray-batch",
+      "mqttHost": "172.27.63.174",
+      "mqttPort": 1883,
+      "useSSL": false,
+      "firebase": {
+          "apiKey": "AIzaSyA977k-Rp1MynsfWCdADCJvCdYuwGbSkTc",
+          "authDomain": "rayapp-b56aa.firebaseapp.com",
+          "projectId": "rayapp-b56aa",
+          "messagingSenderId": "884312375655",
+          "databaseURL": "https://rayapp-b56aa.firebaseio.com",
+          "storageBucket": "rayapp-b56aa.appspot.com",
+          "appId": "1:884312375655:web:4fd239c3ac416f7b"
+      },
+      "config": {
+          "maxVoucherThreshold": 1000
+      },
+      "appStoreEnabled": false,
+      "softwarePackage": "FULL"
+    }

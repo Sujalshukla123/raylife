@@ -1,0 +1,194 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: helmrelease-rayprod
+spec:
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      interval: 1m
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus
+        namespace: analytics
+      version: 66.2.2
+  interval: 1m
+  values:
+    alertmanager:
+      service:
+        type: NodePort
+      alertmanagerSpec:
+        alertmanagerConfigSelector:
+          matchLabels:
+            release: alertmanager
+        resources:
+          limits:
+            cpu: 512m
+            memory: 1024Mi
+          requests:
+            cpu: 512m
+            memory: 1024Mi
+          name: alert-manager
+        storage:
+          volumeClaimTemplate:
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 20Gi
+      config:
+        global:
+          resolve_timeout: 5m
+        receivers:
+          - name: "null"
+          - name: webhook
+            webhook_configs:
+              - send_resolved: true
+                url: https://captivecloud.ray.life/ripple/eks/webhook1
+        route:
+          receiver: webhook
+          repeat_interval: 12h
+          routes:
+            - matchers:
+              - alertname = "Watchdog"
+              receiver: "null"
+        templates:
+          - /etc/alertmanager/config/*.tmpl
+      enabled: true
+    coreDns:
+      enabled: false
+    defaultRules:
+      create: false
+    global:
+      rbac:
+        create: true
+    grafana:
+      adminPassword: A3Q.g4@
+      dashboardProviders:
+        dashboardproviders.yaml:
+          apiVersion: 1
+          providers:
+            - disableDeletion: false
+              editable: true
+              folder: ""
+              name: cdash
+              options:
+                path: /var/lib/grafana/dashboards/cdash
+              orgId: 1
+              type: file
+        dashboardsConfigMaps:
+          cdash: gsm
+      defaultDashboardsEnabled: false
+      enabled: true
+      env:
+        GF_LOG_FILTERS: rendering:debug
+        GF_RENDERING_CALLBACK_URL: http://helmrelease-rayprod-grafana:3000/
+        GF_RENDERING_SERVER_URL: http://grafana-image-renderer-svc:8081/render
+      grafana.ini:
+        auth.anonymous:
+          enabled: true
+        security:
+          allow_embedding: true
+      image:
+        repository: truecomtelesoftindia/grafana
+        tag: 8.3.4
+        pullSecrets:
+          - regcred
+      ingress:
+        annotations:
+          kubernetes.io/ingress.class: nginx
+        enabled: true
+        hosts:
+          - analytics.ray.life
+        ingressClassName: nginx        
+      persistence:
+        accessModes:
+          - ReadWriteOnce
+        enabled: true
+        size: 8Gi
+        type: pvc
+      resources:
+        limits:
+          cpu: 1024m
+          memory: 4096Mi
+        requests:
+          cpu: 1024m
+          memory: 3072Mi
+      service:
+        port: 3000
+        type: NodePort
+        targetPort: 3000
+        portName: http-grafana
+      sidecar:
+        dashboards:
+          enabled: true
+          label: grafana_dashboard
+          provider:
+            allowUiUpdates: true
+        datasources:
+          defaultDatasourceEnabled: true
+          enabled: true
+          name: Prometheus
+          uid: PBFA97CFB590B2093
+    kubeApiserver:
+      enabled: false
+    kubeControllerManager:
+      enabled: false
+    kubeDns:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+    kubeProxy:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+    kubeStateMetrics:
+      enabled: false
+    kubelet:
+      enabled: false
+    nodeExporter:
+      enabled: false
+    prometheus:
+      enabled: true
+      service:
+        type: NodePort
+      prometheusSpec:
+        additionalArgs:
+          - name: storage.tsdb.min-block-duration
+            value: 1h
+        enableFeatures: 
+          - memory-snapshot-on-shutdown
+        additionalScrapeConfigs:
+          - http_sd_configs:
+              - url: http://sd-proxy/clients
+            job_name: pushproxy
+            proxy_url: http://pushprox
+        podMonitorNamespaceSelector: {}
+        podMonitorSelector: {}
+        podMonitorSelectorNilUsesHelmValues: false
+        retention: 7d
+        scrapeTimeout: 20s
+        serviceMonitorNamespaceSelector: {}
+        serviceMonitorSelector: {}
+        serviceMonitorSelectorNilUsesHelmValues: false
+        resources:
+          limits:
+            cpu: 3000m
+            memory: 30Gi
+          requests:
+            cpu: 2000m
+            memory: 25Gi
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 300Gi
+      serviceAccount:
+        create: false
+    prometheusOperator:
+      enabled: true
