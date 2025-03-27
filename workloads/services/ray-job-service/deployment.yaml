@@ -16,7 +16,7 @@ spec:
         - name: regcred
       containers:
         - name: ray-job-service
-          image: truecomtelesoftindia/ray-job-service:8.0.0-SNAPSHOT-master-6a92033-520 # {"$imagepolicy": "default:ray-job-service"}
+          image: truecomtelesoftindia/ray-job-service:8.0.0-SNAPSHOT-master-a20aa91-528 # {"$imagepolicy": "default:ray-job-service"}
           livenessProbe:
             httpGet:
               path: /management/health
