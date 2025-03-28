@@ -29,6 +29,3 @@ spec:
       backupTarget: s3://sujal-test-dump
       backupTargetCredentialSecret: aws-s3-secret
       storageReservedPercentageForDefaultDisk: 10
-    metrics:
-      serviceMonitor:
-        enabled: true
