@@ -27,222 +27,264 @@ spec:
     name: flux-system
   wait: true
 ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: ingress-nginx
-# #   namespace: flux-system
-# # spec:
-# #   interval: 5m0s
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: ingress-nginx
+#   namespace: flux-system
+# spec:
+#   interval: 5m0s
 
-# #   path: ./workloads/addons/ingress-nginx
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: postgres
-# #   namespace: flux-system
-# # spec:
-# #   interval: 5m0s
-# #   dependsOn:
-# #     - name: namespace
-# #     - name: longhorn
-# #   path: ./workloads/addons/postgres
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: postgres-store
-# #   namespace: flux-system
-# # spec:
-# #   interval: 5m0s
-# #   dependsOn:
-# #     - name: longhorn
-# #   path: ./workloads/addons/postgres-store
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
-# # #apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # #kind: Kustomization
-# # #metadata:
-# # #  name: postgres-backup-restore
-# # #  namespace: flux-system
-# # #spec:
-# # #  interval: 5m0s
-# # #  dependsOn:
-# # #    - name: namespace
-# # #  path: ./workloads/addons/postgres-backup-restore
-# # #  prune: true
-# # #  sourceRef:
-# # #    kind: GitRepository
-# # #    name: flux-system
-# ---
-# apiVersion: kustomize.toolkit.fluxcd.io/v1
-# kind: Kustomization
-# metadata:
-#   name: common-secrets
-#   namespace: flux-system
-# spec:
-#   interval: 5m0s
-#   path: ./workloads/addons/common-secrets
+#   path: ./workloads/addons/ingress-nginx
 #   prune: true
 #   sourceRef:
 #     kind: GitRepository
 #     name: flux-system
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: kafka-zk
-# #   namespace: flux-system
-# # spec:
-# #   dependsOn:
-# #     - name: longhorn
-# #   interval: 5m0s
-# #   path: ./workloads/addons/kafka-zk
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: kafka
-# #   namespace: flux-system
-# # spec:
-# #   dependsOn:
-# #   - name: kafka-zk
-# #   - name: longhorn
-# #   interval: 5m0s
-# #   path: ./workloads/addons/kafka
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: kafka
-# #   namespace: flux-system
-# # spec:
-# #   dependsOn:
-# #   - name: kafka-zk
-# #   interval: 5m0s
-# #   path: ./workloads/addons/kafka
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
+---
 # apiVersion: kustomize.toolkit.fluxcd.io/v1
 # kind: Kustomization
 # metadata:
-#   name: vernemq
+#   name: postgres
 #   namespace: flux-system
 # spec:
 #   interval: 5m0s
-#   path: ./workloads/addons/vernemq
+#   dependsOn:
+#     - name: namespace
+#     - name: longhorn
+#   path: ./workloads/addons/postgres
 #   prune: true
 #   sourceRef:
 #     kind: GitRepository
 #     name: flux-system
-# ---
+---
 # apiVersion: kustomize.toolkit.fluxcd.io/v1
 # kind: Kustomization
 # metadata:
-#   name: crate
+#   name: postgres-store
 #   namespace: flux-system
 # spec:
 #   interval: 5m0s
 #   dependsOn:
 #     - name: longhorn
-#   path: ./workloads/addons/crate
+#   path: ./workloads/addons/postgres-store
 #   prune: true
 #   sourceRef:
 #     kind: GitRepository
 #     name: flux-system
-#   wait: true
-# ---
+---
+# #apiVersion: kustomize.toolkit.fluxcd.io/v1
+# #kind: Kustomization
+# #metadata:
+# #  name: postgres-backup-restore
+# #  namespace: flux-system
+# #spec:
+# #  interval: 5m0s
+# #  dependsOn:
+# #    - name: namespace
+# #  path: ./workloads/addons/postgres-backup-restore
+# #  prune: true
+# #  sourceRef:
+# #    kind: GitRepository
+# #    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: common-secrets
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./workloads/addons/common-secrets
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
 # apiVersion: kustomize.toolkit.fluxcd.io/v1
 # kind: Kustomization
 # metadata:
-#   name: metallb
+#   name: kafka-zk
 #   namespace: flux-system
 # spec:
+#   dependsOn:
+#     - name: longhorn
 #   interval: 5m0s
-#   path: ./workloads/addons/metallb
+#   path: ./workloads/addons/kafka-zk
 #   prune: true
 #   sourceRef:
 #     kind: GitRepository
 #     name: flux-system
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: flink
-# #   namespace: flux-system
-# # spec:
-# #   interval: 5m0s
-# #   dependsOn:
-# #     - name: longhorn
-# #     - name: kafka-zk
-# #   path: ./workloads/addons/flink
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
+---
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: kafka
+#   namespace: flux-system
+# spec:
+#   dependsOn:
+#   - name: kafka-zk
+#   - name: longhorn
+#   interval: 5m0s
+#   path: ./workloads/addons/kafka
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+---
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: kafka
+#   namespace: flux-system
+# spec:
+#   dependsOn:
+#   - name: kafka-zk
+#   interval: 5m0s
+#   path: ./workloads/addons/kafka
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: vernemq
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./workloads/addons/vernemq
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: crate
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  dependsOn:
+    - name: longhorn
+  path: ./workloads/addons/crate
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: metallb
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./workloads/addons/metallb
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: flink
+#   namespace: flux-system
+# spec:
+#   interval: 5m0s
+#   dependsOn:
+#     - name: longhorn
+#     - name: kafka-zk
+#   path: ./workloads/addons/flink
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
 
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: haproxy
-# #   namespace: flux-system
-# # spec:
-# #   interval: 5m0s
-# #   path: ./workloads/addons/haproxy
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
+---
 # apiVersion: kustomize.toolkit.fluxcd.io/v1
 # kind: Kustomization
 # metadata:
-#   name: prometheus
+#   name: haproxy
 #   namespace: flux-system
 # spec:
 #   interval: 5m0s
-#   dependsOn:
-#     - name: longhorn
-#   path: ./workloads/addons/ray-prometheus
+#   path: ./workloads/addons/haproxy
 #   prune: true
 #   sourceRef:
 #     kind: GitRepository
 #     name: flux-system
-# ---
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: prometheus
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  dependsOn:
+    - name: longhorn
+  path: ./workloads/addons/ray-prometheus
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: prometheus-analytics
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  dependsOn:
+    - name: longhorn
+  path: ./workloads/addons/ray-prometheus-analytics
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: priority-class
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./workloads/addons/PriorityClass
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kafka-new
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  dependsOn:
+    - name: longhorn
+  path: ./workloads/addons/kafka-new
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+---
 # apiVersion: kustomize.toolkit.fluxcd.io/v1
 # kind: Kustomization
 # metadata:
-#   name: prometheus-analytics
+#   name: alerts
 #   namespace: flux-system
 # spec:
 #   interval: 5m0s
-#   dependsOn:
-#     - name: longhorn
-#   path: ./workloads/addons/ray-prometheus-analytics
+#   path: ./workloads/addons/alerts
 #   prune: true
 #   sourceRef:
 #     kind: GitRepository
@@ -251,294 +293,252 @@ spec:
 # apiVersion: kustomize.toolkit.fluxcd.io/v1
 # kind: Kustomization
 # metadata:
-#   name: priority-class
+#   name: kafkacat
 #   namespace: flux-system
 # spec:
 #   interval: 5m0s
-#   path: ./workloads/addons/PriorityClass
+#   path: ./workloads/addons/kafkacat
 #   prune: true
 #   sourceRef:
 #     kind: GitRepository
 #     name: flux-system
-# ---
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: eck-operator
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  dependsOn:
+    - name: longhorn
+  path: ./workloads/addons/eck-operator
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: logging-es-eck
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  dependsOn:
+    - name: eck-operator
+    - name: longhorn
+  path: ./workloads/addons/logging-es
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: k8s-user
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./workloads/addons/k8s-user
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: metrics-server
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./workloads/addons/metrics-server
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: longhorn-recurring-job
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  dependsOn:
+    - name: longhorn
+  path: ./workloads/addons/longhorn-recurring-job
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
 # apiVersion: kustomize.toolkit.fluxcd.io/v1
 # kind: Kustomization
 # metadata:
-#   name: kafka-new
-#   namespace: flux-system
-# spec:
-#   interval: 5m0s
-#   dependsOn:
-#     - name: longhorn
-#   path: ./workloads/addons/kafka-new
-#   prune: true
-#   sourceRef:
-#     kind: GitRepository
-#     name: flux-system
-#   wait: true
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: alerts
-# #   namespace: flux-system
-# # spec:
-# #   interval: 5m0s
-# #   path: ./workloads/addons/alerts
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# # ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: kafkacat
-# #   namespace: flux-system
-# # spec:
-# #   interval: 5m0s
-# #   path: ./workloads/addons/kafkacat
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
-# apiVersion: kustomize.toolkit.fluxcd.io/v1
-# kind: Kustomization
-# metadata:
-#   name: eck-operator
-#   namespace: flux-system
-# spec:
-#   interval: 5m0s
-#   dependsOn:
-#     - name: longhorn
-#   path: ./workloads/addons/eck-operator
-#   prune: true
-#   sourceRef:
-#     kind: GitRepository
-#     name: flux-system
-# ---
-# apiVersion: kustomize.toolkit.fluxcd.io/v1
-# kind: Kustomization
-# metadata:
-#   name: logging-es-eck
-#   namespace: flux-system
-# spec:
-#   interval: 10m0s
-#   dependsOn:
-#     - name: eck-operator
-#     - name: longhorn
-#   path: ./workloads/addons/logging-es
-#   prune: true
-#   sourceRef:
-#     kind: GitRepository
-#     name: flux-system
-# ---
-# apiVersion: kustomize.toolkit.fluxcd.io/v1
-# kind: Kustomization
-# metadata:
-#   name: k8s-user
-#   namespace: flux-system
-# spec:
-#   interval: 5m0s
-#   path: ./workloads/addons/k8s-user
-#   prune: true
-#   sourceRef:
-#     kind: GitRepository
-#     name: flux-system
-# ---
-# apiVersion: kustomize.toolkit.fluxcd.io/v1
-# kind: Kustomization
-# metadata:
-#   name: metrics-server
-#   namespace: flux-system
-# spec:
-#   interval: 10m0s
-#   path: ./workloads/addons/metrics-server
-#   prune: true
-#   sourceRef:
-#     kind: GitRepository
-#     name: flux-system
-# ---
-# apiVersion: kustomize.toolkit.fluxcd.io/v1
-# kind: Kustomization
-# metadata:
-#   name: longhorn-recurring-job
-#   namespace: flux-system
-# spec:
-#   interval: 10m0s
-#   dependsOn:
-#     - name: longhorn
-#   path: ./workloads/addons/longhorn-recurring-job
-#   prune: true
-#   sourceRef:
-#     kind: GitRepository
-#     name: flux-system
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: flink-operator
-# #   namespace: flux-system
-# # spec:
-# #   dependsOn:
-# #     - name: cert-manager-resources
-# #     - name: cert-manager
-# #   interval: 5m0s
-# #   path: ./workloads/addons/flink-operator
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: flink-job
-# #   namespace: flux-system
-# # spec:
-# #   dependsOn:
-# #     - name: flink-operator
-# #   interval: 5m0s
-# #   path: ./workloads/addons/flink-job
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# # ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: cert-manager
-# #   namespace: flux-system
-# # spec:
-# #   interval: 5m0s
-# #   path: ./workloads/addons/cert-manager
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# # ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: cert-manager-resources
-# #   namespace: flux-system
-# # spec:
-# #   interval: 5m0s
-# #   path: ./workloads/addons/cert-manager-resources
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
-# apiVersion: kustomize.toolkit.fluxcd.io/v1
-# kind: Kustomization
-# metadata:
-#   name: postgres-cronjob
+#   name: flink-operator
 #   namespace: flux-system
 # spec:
 #   dependsOn:
-#     - name: postgres-new
+#     - name: cert-manager-resources
+#     - name: cert-manager
 #   interval: 5m0s
-#   path: ./workloads/addons/postgres-cronjob
+#   path: ./workloads/addons/flink-operator
 #   prune: true
 #   sourceRef:
 #     kind: GitRepository
 #     name: flux-system
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: metallb-ip-address-pool
-# #   namespace: flux-system
-# # spec:
-# #   interval: 5m0s
-# #   path: ./workloads/addons/metallb-ip-address-pool
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: test-nginx
-# #   namespace: flux-system
-# # spec:
-# #   interval: 5m0s
-# #   path: ./workloads/addons/test-nginx
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
+---
 # apiVersion: kustomize.toolkit.fluxcd.io/v1
 # kind: Kustomization
 # metadata:
-#   name: postgres-operator
+#   name: flink-job
 #   namespace: flux-system
 # spec:
-#   interval: 5m0s
-#   path: ./workloads/addons/postgres-operator
-#   prune: true
-#   sourceRef:
-#     kind: GitRepository
-#     name: flux-system
-# ---
-# apiVersion: kustomize.toolkit.fluxcd.io/v1
-# kind: Kustomization
-# metadata:
-#   name: postgres-new
-#   namespace: flux-system
-# spec:
-#   interval: 5m0s
 #   dependsOn:
-#     - name: postgres-operator
-#     - name: longhorn
-#   path: ./workloads/addons/postgres-new
+#     - name: flink-operator
+#   interval: 5m0s
+#   path: ./workloads/addons/flink-job
 #   prune: true
 #   sourceRef:
 #     kind: GitRepository
 #     name: flux-system
-#   wait: true
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: rsync
-# #   namespace: flux-system
-# # spec:
-# #   interval: 5m0s
-# #   path: ./workloads/addons/rsync
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
-# ---
-# # apiVersion: kustomize.toolkit.fluxcd.io/v1
-# # kind: Kustomization
-# # metadata:
-# #   name: crate-cronjob
-# #   namespace: flux-system
-# # spec:
-# #   dependsOn:
-# #     - name: crate
-# #   interval: 5m0s
-# #   path: ./workloads/addons/crate-cronjob
-# #   prune: true
-# #   sourceRef:
-# #     kind: GitRepository
-# #     name: flux-system
 # ---
 # apiVersion: kustomize.toolkit.fluxcd.io/v1
 # kind: Kustomization
 # metadata:
-#   name: k8s-readonly-user
+#   name: cert-manager
 #   namespace: flux-system
 # spec:
 #   interval: 5m0s
-#   path: ./workloads/addons/k8s-readonly-user
+#   path: ./workloads/addons/cert-manager
 #   prune: true
 #   sourceRef:
 #     kind: GitRepository
 #     name: flux-system
+# ---
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: cert-manager-resources
+#   namespace: flux-system
+# spec:
+#   interval: 5m0s
+#   path: ./workloads/addons/cert-manager-resources
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: postgres-cronjob
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: postgres-new
+  interval: 5m0s
+  path: ./workloads/addons/postgres-cronjob
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: metallb-ip-address-pool
+#   namespace: flux-system
+# spec:
+#   interval: 5m0s
+#   path: ./workloads/addons/metallb-ip-address-pool
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+---
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: test-nginx
+#   namespace: flux-system
+# spec:
+#   interval: 5m0s
+#   path: ./workloads/addons/test-nginx
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: postgres-operator
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./workloads/addons/postgres-operator
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: postgres-new
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  dependsOn:
+    - name: postgres-operator
+    - name: longhorn
+  path: ./workloads/addons/postgres-new
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+---
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: rsync
+#   namespace: flux-system
+# spec:
+#   interval: 5m0s
+#   path: ./workloads/addons/rsync
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+---
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: crate-cronjob
+#   namespace: flux-system
+# spec:
+#   dependsOn:
+#     - name: crate
+#   interval: 5m0s
+#   path: ./workloads/addons/crate-cronjob
+#   prune: true
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: k8s-readonly-user
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./workloads/addons/k8s-readonly-user
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
